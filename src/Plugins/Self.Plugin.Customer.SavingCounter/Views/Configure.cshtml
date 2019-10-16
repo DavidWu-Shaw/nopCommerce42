@@ -1,0 +1,63 @@
+﻿@model ConfigurationModel
+@{
+    Layout = "_ConfigurePlugin";
+}
+<form asp-controller="SavingCounter" asp-action="Configure" method="post">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @Html.Raw(T("Plugin.Customer.SavingCounter.Description").Text)
+
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="InitialBaseAmount" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="InitialBaseAmount" />
+                        <span asp-validation-for="InitialBaseAmount"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="DeltaAmountMax" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="DeltaAmountMax" />
+                        <span asp-validation-for="DeltaAmountMax"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="MinutesOfCounterRefresh" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="MinutesOfCounterRefresh" />
+                        <span asp-validation-for="MinutesOfCounterRefresh"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="BaseAmount" />
+                    </div>
+                    <div class="col-md-9">
+                        @Model.BaseAmount
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-label asp-for="ActualTotalSavings" />
+                    </div>
+                    <div class="col-md-9">
+                        @Model.ActualTotalSavings
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-9 col-md-offset-3">
+                        <input type="submit" name="save" class="btn btn-primary" value="@T("Admin.Common.Save")" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @await Component.InvokeAsync("SavingsCounter")
+</form>

@@ -1,0 +1,14 @@
+﻿@model SavingCounterInfoModel
+<div class="savings-counter-pannel" id="savings-counter-pannel">
+    <span class="text"><strong>@T("Plugin.Customer.SavingCounter.Label.Text")</strong></span>
+    <span id="total-savings" class="total-savings">@Model.TotalSavings</span>
+    <button type="button" class="ok-button" id="savings-counter-close">@T("Common.Close")</button>
+</div>
+@{
+    Html.AddScriptParts(ResourceLocation.Footer, "~/Plugins/Customer.SavingCounter/Scripts/savingCounter.js");
+}
+<script type="text/javascript" asp-location="Footer">
+    $(function () {
+        SavingCounterManager.init({ millisecondsOfCounterRefresh: @Model.MillisecondsOfCounterRefresh});
+    });
+</script>

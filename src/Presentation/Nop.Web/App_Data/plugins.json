@@ -15,7 +15,9 @@
     "Tax.FixedOrByCountryStateZip",
     "Widgets.GoogleAnalytics",
     "Widgets.NivoSlider",
-    "ExternalAuth.Facebook"
+    "ExternalAuth.Facebook",
+    "Self.Customer.SavingCounter",
+    "Payments.Moneris"
   ],
   "PluginNamesToUninstall": [],
   "PluginNamesToDelete": [],
