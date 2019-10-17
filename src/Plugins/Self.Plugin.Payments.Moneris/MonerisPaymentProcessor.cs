@@ -58,7 +58,7 @@ namespace Self.Plugin.Payments.Moneris
         /// <returns>Process payment result</returns>
         public ProcessPaymentResult ProcessPayment(ProcessPaymentRequest processPaymentRequest)
         {
-            var result = _paymentGatewayService.ChargeWithVault(processPaymentRequest);
+            var result = _paymentGatewayService.Charge(processPaymentRequest);
 
             return result;
         }

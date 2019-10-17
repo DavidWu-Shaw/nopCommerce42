@@ -11,7 +11,6 @@ namespace Self.Plugin.Payments.Moneris.Services
         /// <param name="paymentRequest"></param>
         /// <returns></returns>
         ProcessPaymentResult Charge(ProcessPaymentRequest paymentRequest);
-        ProcessPaymentResult ChargeWithVault(ProcessPaymentRequest paymentRequest);
         /// <summary>
         /// Verifies and locks funds on the customer’s credit card. The funds are locked for a specified amount of time 
         /// based on the card issuer. To retrieve the funds that have been locked by a Authorization transaction 

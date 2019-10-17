@@ -21,35 +21,63 @@ namespace Self.Plugin.Payments.Moneris.Services
             _transactionRequest.SetApiToken(_monerisPaymentSettings.ApiToken);
         }
 
-        public ProcessPaymentResult ChargeWithVault(ProcessPaymentRequest paymentRequest)
+        public ProcessPaymentResult Charge(ProcessPaymentRequest paymentRequest)
         {
             ProcessPaymentResult result = new ProcessPaymentResult();
-            string dataKey = paymentRequest.SavedCardVault;
+            string dataKey = paymentRequest.CustomValues["SavedCardVault"] as string;
+            bool isNewCardSaveAllowed = System.Convert.ToBoolean(paymentRequest.CustomValues["IsNewCardSaveAllowed"]);
 
             try
             {
-                if (paymentRequest.IsNewCardSaveAllowed)
+                if (isNewCardSaveAllowed)
                 {
                     // Vault Add card
                     string expireDate = GetExpireDate(paymentRequest.CreditCardExpireYear, paymentRequest.CreditCardExpireMonth);
                     dataKey = AddCardToVault(paymentRequest.CreditCardNumber, expireDate, paymentRequest.CustomerId.ToString());
+                    // TODO: save into database
+
                 }
-                // Create purchase
-                ResPurchaseCC purchase = new ResPurchaseCC();
-                purchase.SetDataKey(dataKey);
+                if (!string.IsNullOrEmpty(dataKey))
+                {
+                    // Create purchase with dataKey
+                    ResPurchaseCC purchase = new ResPurchaseCC();
+                    purchase.SetDataKey(dataKey);
 
-                purchase.SetOrderId(paymentRequest.OrderGuid.ToString());
-                purchase.SetAmount(paymentRequest.OrderTotal.ToString());
-                purchase.SetCryptType(_monerisPaymentSettings.Crypt);
-                purchase.SetDynamicDescriptor(_monerisPaymentSettings.DynamicDescriptor);
-                // CVD check
-                CvdInfo cvdCheck = new CvdInfo();
-                cvdCheck.SetCvdIndicator("1");
-                cvdCheck.SetCvdValue(paymentRequest.CreditCardCvv2);
-                purchase.SetCvdInfo(cvdCheck);
+                    purchase.SetOrderId(paymentRequest.OrderGuid.ToString());
+                    purchase.SetAmount(paymentRequest.OrderTotal.ToString());
+                    purchase.SetCryptType(_monerisPaymentSettings.Crypt);
+                    purchase.SetDynamicDescriptor(_monerisPaymentSettings.DynamicDescriptor);
+                    // CVD check
+                    CvdInfo cvdCheck = new CvdInfo();
+                    cvdCheck.SetCvdIndicator("1");
+                    cvdCheck.SetCvdValue(paymentRequest.CreditCardCvv2);
+                    purchase.SetCvdInfo(cvdCheck);
+                    Receipt receipt = PerformTransation(purchase);
+                    result = ConvertToResult(receipt);
+                }
+                else
+                {
+                    // Create purchase
+                    Purchase purchase = new Purchase();
+                    purchase.SetPan(paymentRequest.CreditCardNumber);
+                    // Expire date "YYMM" format
+                    string expireDate = GetExpireDate(paymentRequest.CreditCardExpireYear, paymentRequest.CreditCardExpireMonth);
+                    purchase.SetExpDate(expireDate);
 
-                Receipt receipt = PerformTransation(purchase);
-                result = ConvertToResult(receipt);
+                    purchase.SetOrderId(paymentRequest.OrderGuid.ToString());
+                    purchase.SetAmount(paymentRequest.OrderTotal.ToString());
+                    purchase.SetCustId(paymentRequest.CustomerId.ToString());
+                    purchase.SetCryptType(_monerisPaymentSettings.Crypt);
+                    purchase.SetDynamicDescriptor(_monerisPaymentSettings.DynamicDescriptor);
+                    // CVD check
+                    CvdInfo cvdCheck = new CvdInfo();
+                    cvdCheck.SetCvdIndicator("1");
+                    cvdCheck.SetCvdValue(paymentRequest.CreditCardCvv2);
+                    purchase.SetCvdInfo(cvdCheck);
+
+                    Receipt receipt = PerformTransation(purchase);
+                    result = ConvertToResult(receipt);
+                }
             }
             catch (Exception ex)
             {
@@ -73,41 +101,6 @@ namespace Self.Plugin.Payments.Moneris.Services
             string dataKey = receipt.GetDataKey();
 
             return dataKey;
-        }
-
-        public ProcessPaymentResult Charge(ProcessPaymentRequest paymentRequest)
-        {
-            // Create purchase
-            Purchase purchase = new Purchase();
-            purchase.SetPan(paymentRequest.CreditCardNumber);
-            // Expire date "YYMM" format
-            string expireDate = GetExpireDate(paymentRequest.CreditCardExpireYear, paymentRequest.CreditCardExpireMonth);
-            purchase.SetExpDate(expireDate);
-
-            purchase.SetOrderId(paymentRequest.OrderGuid.ToString());
-            purchase.SetAmount(paymentRequest.OrderTotal.ToString());
-            purchase.SetCustId(paymentRequest.CustomerId.ToString());
-            purchase.SetCryptType(_monerisPaymentSettings.Crypt);
-            purchase.SetDynamicDescriptor(_monerisPaymentSettings.DynamicDescriptor);
-            // CVD check
-            CvdInfo cvdCheck = new CvdInfo();
-            cvdCheck.SetCvdIndicator("1");
-            cvdCheck.SetCvdValue(paymentRequest.CreditCardCvv2);
-            purchase.SetCvdInfo(cvdCheck);
-
-            ProcessPaymentResult result = new ProcessPaymentResult();
-            try
-            {
-                Receipt receipt = PerformTransation(purchase);
-                result = ConvertToResult(receipt);
-            }
-            catch (Exception ex)
-            {
-                result.NewPaymentStatus = PaymentStatus.Pending;
-                result.AddError(ex.Message);
-            }
-
-            return result;
         }
 
         public ProcessPaymentResult Authorize(ProcessPaymentRequest paymentRequest)
