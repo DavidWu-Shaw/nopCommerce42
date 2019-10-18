@@ -19,11 +19,5 @@ namespace Self.Plugin.Payments.Moneris.Services
         /// <param name="paymentRequest"></param>
         /// <returns>Payment result</returns>
         ProcessPaymentResult Authorize(ProcessPaymentRequest paymentRequest);
-        /// <summary>
-        /// Retrieves funds that have been locked by a Authorization, and prepares them for settlement into the merchant’s account.
-        /// </summary>
-        /// <param name="capturePaymentRequest"></param>
-        /// <returns></returns>
-        CapturePaymentResult Capture(CapturePaymentRequest capturePaymentRequest);
     }
 }
