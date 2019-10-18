@@ -7,6 +7,14 @@ namespace Self.Plugin.Payments.Moneris.Services
 {
     public class MonerisPaymentService : IPaymentGatewayService
     {
+        private const string AVS_VISA_MATCH = "P";
+        private const string AVS_MASTER_OR_DISCOVER_MATCH = "W";
+        private const string AVS_AMEX_OR_JCB_MATCH = "Z";
+
+        private const string CARDTYPE_VISA = "V";
+        private const string CARDTYPE_MASTER = "M";
+        private const string CARDTYPE_AMEX = "AX";
+
         private MonerisPaymentSettings _monerisPaymentSettings { get; set; }
         private HttpsPostRequest _transactionRequest { get; set; }
 
@@ -55,7 +63,8 @@ namespace Self.Plugin.Payments.Moneris.Services
 
                     receipt = PerformTransation(purchase);
                 }
-                result = ConvertToChargeResult(receipt);
+                // Build result
+                ConvertToChargeResult(receipt, result);
             }
             catch (Exception ex)
             {
@@ -66,7 +75,45 @@ namespace Self.Plugin.Payments.Moneris.Services
             return result;
         }
 
-        public string AddCardToVault(string creditCardNumber, string expireDate, string customerId)
+        public ProcessPaymentResult ChargeWithValidation(ProcessPaymentRequest paymentRequest, bool validateAVS = false, bool validateCVD = false)
+        {
+            if (!validateAVS && !validateCVD)
+            {
+                return Charge(paymentRequest);
+            }
+            // Step 1: Authorize 
+            var result = Authorize(paymentRequest);
+            // Step 2: check AVS and CVD result
+            bool isValid = false;
+            if (validateAVS)
+            {
+                // Check AVS result
+                string avsCode = result.AvsResult;
+                isValid = avsCode == AVS_VISA_MATCH || avsCode == AVS_MASTER_OR_DISCOVER_MATCH || avsCode == AVS_AMEX_OR_JCB_MATCH;
+            }
+            if (validateCVD)
+            {
+                isValid = isValid && result.Cvv2Result == "1M";
+                // Check CVD result
+            }
+            // Step 3: Perform Authorization Completion transaction based on check result
+            var completionAmount = isValid ? paymentRequest.OrderTotal.ToString() : "0.00";
+            var completion = CreateCompletion(paymentRequest.OrderGuid.ToString(), completionAmount, result.AuthorizationTransactionId);
+            try
+            {
+                var receipt = PerformTransation(completion);
+                // Build result
+                ConvertToChargeResult(receipt, result);
+            }
+            catch (Exception ex)
+            {
+                result.AddError(ex.Message);
+            }
+
+            return result;
+        }
+
+        private string AddCardToVault(string creditCardNumber, string expireDate, string customerId)
         {
             var resaddcc = new ResAddCC();
             resaddcc.SetPan(creditCardNumber);
@@ -147,6 +194,17 @@ namespace Self.Plugin.Payments.Moneris.Services
             return auth;
         }
 
+        private Completion CreateCompletion(string orderId, string amount, string authTransactionNumber)
+        {
+            var completion = new Completion();
+            completion.SetOrderId(orderId);
+            completion.SetCompAmount(amount);
+            completion.SetTxnNumber(authTransactionNumber);
+            completion.SetCryptType(_monerisPaymentSettings.Crypt);
+            completion.SetDynamicDescriptor(_monerisPaymentSettings.DynamicDescriptor);
+            return completion;
+        }
+
         private CvdInfo CreateCvdInfo(string cvd)
         {
             CvdInfo cvdCheck = new CvdInfo();
@@ -191,7 +249,11 @@ namespace Self.Plugin.Payments.Moneris.Services
                     receipt = PerformTransation(auth);
                 }
 
-                result = ConvertToAuthResult(receipt);
+                result.AvsResult = receipt.GetAvsResultCode();
+                result.Cvv2Result = receipt.GetCvdResultCode();
+                result.AuthorizationTransactionId = receipt.GetTxnNumber();
+                result.AuthorizationTransactionCode = receipt.GetAuthCode();
+                result.AuthorizationTransactionResult = receipt.GetResponseCode();
             }
             catch (Exception ex)
             {
@@ -201,20 +263,17 @@ namespace Self.Plugin.Payments.Moneris.Services
             return result;
         }
 
+        // TODO: need refactor
         public ProcessPaymentResult Capture(string orderId, string amount, string authTransactionNumber)
         {
             var result = new ProcessPaymentResult();
 
-            Completion completion = new Completion();
-            completion.SetOrderId(orderId);
-            completion.SetCompAmount(amount);
-            completion.SetTxnNumber(authTransactionNumber);
-            completion.SetCryptType(_monerisPaymentSettings.Crypt);
-            completion.SetDynamicDescriptor(_monerisPaymentSettings.DynamicDescriptor);
+            var completion = CreateCompletion(orderId, amount, authTransactionNumber);
 
             try
             {
-                Receipt receipt = PerformTransation(completion);
+                var receipt = PerformTransation(completion);
+                // Build result
 
             }
             catch(Exception ex)
@@ -229,14 +288,51 @@ namespace Self.Plugin.Payments.Moneris.Services
         {
             _transactionRequest.SetTransaction(transaction);
             _transactionRequest.Send();
-
             return _transactionRequest.GetReceipt();
         }
 
-        private ProcessPaymentResult ConvertToChargeResult(Receipt receipt)
+        private Receipt PerformAuthorizeTransation(string cardNumber, string expireDate, string customerId, string orderId, string amount, string cvd)
         {
-            ProcessPaymentResult result = new ProcessPaymentResult();
+            var dataKey = paymentRequest.CustomValues["SavedCardVault"] as string;
+            var isNewCardSaveAllowed = System.Convert.ToBoolean(paymentRequest.CustomValues["IsNewCardSaveAllowed"]);
+            // Expire date "YYMM" format
+            var expireDate = GetExpireDate(paymentRequest.CreditCardExpireYear, paymentRequest.CreditCardExpireMonth);
 
+            try
+            {
+                if (isNewCardSaveAllowed)
+                {
+                    // Vault Add card
+                    dataKey = AddCardToVault(paymentRequest.CreditCardNumber, expireDate, paymentRequest.CustomerId.ToString());
+                    // TODO: save into database
+
+                }
+                Receipt receipt = null;
+                if (!string.IsNullOrEmpty(dataKey))
+                {
+                    // Create auth with dataKey
+                    var auth = CreateAuthWithVault(dataKey, paymentRequest.OrderGuid.ToString(),
+                        paymentRequest.OrderTotal.ToString(), paymentRequest.CreditCardCvv2);
+
+                    receipt = PerformTransation(auth);
+                }
+                else
+                {
+                    // Create auth
+                    var auth = CreateAuth(paymentRequest.CreditCardNumber, expireDate, paymentRequest.CustomerId.ToString(),
+                        paymentRequest.OrderGuid.ToString(), paymentRequest.OrderTotal.ToString(), paymentRequest.CreditCardCvv2);
+
+                    receipt = PerformTransation(auth);
+                }
+
+                _transactionRequest.SetTransaction(transaction);
+            _transactionRequest.Send();
+            return _transactionRequest.GetReceipt();
+        }
+
+
+        private void ConvertToChargeResult(Receipt receipt, ProcessPaymentResult result)
+        {
             if (receipt.GetComplete() == "false")
             {
                 result.AddError("Payment is not successful. Please try again or check payment option.");
@@ -246,7 +342,7 @@ namespace Self.Plugin.Payments.Moneris.Services
             result.AuthorizationTransactionId = receipt.GetReferenceNum();
             result.AuthorizationTransactionCode = receipt.GetAuthCode();
             result.AuthorizationTransactionResult = receipt.GetResponseCode();
-            result.CaptureTransactionId = receipt.GetTxnNumber(); // required for refunds
+            result.CaptureTransactionId = receipt.GetTxnNumber(); // required for refund
             result.CaptureTransactionResult = receipt.GetTransactionId();
             if (receipt.GetResponseCode() != null || receipt.GetResponseCode() != "null")
             {
@@ -259,25 +355,6 @@ namespace Self.Plugin.Payments.Moneris.Services
                     result.NewPaymentStatus = PaymentStatus.Paid;
                 }
             }
-
-            return result;
-        }
-
-        private ProcessPaymentResult ConvertToAuthResult(Receipt receipt)
-        {
-            ProcessPaymentResult result = new ProcessPaymentResult();
-
-            if (receipt.GetComplete() == "false")
-            {
-                result.AddError("Authorization is not successful. Please try again or check payment option.");
-            }
-            result.AvsResult = receipt.GetAvsResultCode();
-            result.Cvv2Result = receipt.GetCavvResultCode();
-            result.AuthorizationTransactionId = receipt.GetTxnNumber();
-            result.AuthorizationTransactionCode = receipt.GetAuthCode();
-            result.AuthorizationTransactionResult = receipt.GetResponseCode();
-
-            return result;
         }
 
         private string GetExpireDate(int year, int month)

@@ -12,6 +12,12 @@ namespace Self.Plugin.Payments.Moneris.Services
         /// <returns></returns>
         ProcessPaymentResult Charge(ProcessPaymentRequest paymentRequest);
         /// <summary>
+        /// Authorize and then check AVS/CVD, if failed then void it otherwise complete it
+        /// </summary>
+        /// <param name="paymentRequest"></param>
+        /// <returns></returns>
+        ProcessPaymentResult ChargeWithValidation(ProcessPaymentRequest paymentRequest, bool validateAVS = false, bool validateCVD = false);
+        /// <summary>
         /// Verifies and locks funds on the customer’s credit card. The funds are locked for a specified amount of time 
         /// based on the card issuer. To retrieve the funds that have been locked by a Authorization transaction 
         /// so that they may be settled in the merchant’s account, a Capture transaction must be performed.
