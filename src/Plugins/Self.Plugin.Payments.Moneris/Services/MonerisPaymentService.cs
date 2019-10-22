@@ -29,7 +29,46 @@ namespace Self.Plugin.Payments.Moneris.Services
             _transactionRequest.SetApiToken(_monerisPaymentSettings.ApiToken);
         }
 
-        public ProcessPaymentResult Charge(ProcessPaymentRequest paymentRequest)
+        public ProcessPaymentResult Charge(ProcessPaymentRequest paymentRequest, bool validateAVS = false, bool validateCVD = false)
+        {
+            if (!validateAVS && !validateCVD)
+            {
+                return ChargeWithoutValidation(paymentRequest);
+            }
+            // Charge with CVD check or AVS check
+            // Step 1: Authorize 
+            var result = Authorize(paymentRequest);
+            // Step 2: check AVS and CVD result
+            bool isValid = false;
+            if (validateAVS)
+            {
+                // Check AVS result
+                string avsCode = result.AvsResult;
+                isValid = avsCode == AVS_VISA_MATCH || avsCode == AVS_MASTER_OR_DISCOVER_MATCH || avsCode == AVS_AMEX_OR_JCB_MATCH;
+            }
+            if (validateCVD)
+            {
+                isValid = isValid && result.Cvv2Result == "1M";
+                // Check CVD result
+            }
+            // Step 3: Perform Authorization Completion transaction based on check result
+            var completionAmount = isValid ? paymentRequest.OrderTotal.ToString() : "0.00";
+            var completion = CreateCompletion(paymentRequest.OrderGuid.ToString(), completionAmount, result.AuthorizationTransactionId);
+            try
+            {
+                var receipt = PerformTransation(completion);
+                // Build result
+                ConvertToChargeResult(receipt, result);
+            }
+            catch (Exception ex)
+            {
+                result.AddError(ex.Message);
+            }
+
+            return result;
+        }
+
+        public ProcessPaymentResult ChargeWithoutValidation(ProcessPaymentRequest paymentRequest)
         {
             var result = new ProcessPaymentResult();
             var dataKey = paymentRequest.CustomValues["SavedCardVault"] as string;
@@ -58,7 +97,7 @@ namespace Self.Plugin.Payments.Moneris.Services
                 else
                 {
                     // Create purchase
-                    var purchase = CreatePurchase(paymentRequest.CreditCardNumber, expireDate, paymentRequest.CustomerId.ToString(), 
+                    var purchase = CreatePurchase(paymentRequest.CreditCardNumber, expireDate, paymentRequest.CustomerId.ToString(),
                         paymentRequest.OrderGuid.ToString(), paymentRequest.OrderTotal.ToString(), paymentRequest.CreditCardCvv2);
 
                     receipt = PerformTransation(purchase);
@@ -75,35 +114,53 @@ namespace Self.Plugin.Payments.Moneris.Services
             return result;
         }
 
-        public ProcessPaymentResult ChargeWithValidation(ProcessPaymentRequest paymentRequest, bool validateAVS = false, bool validateCVD = false)
+        public ProcessPaymentResult Authorize(ProcessPaymentRequest paymentRequest)
         {
-            if (!validateAVS && !validateCVD)
+            var result = new ProcessPaymentResult();
+
+            var dataKey = paymentRequest.CustomValues["SavedCardVault"] as string;
+            var isNewCardSaveAllowed = System.Convert.ToBoolean(paymentRequest.CustomValues["IsNewCardSaveAllowed"]);
+            // Expire date "YYMM" format
+            var expireDate = GetExpireDate(paymentRequest.CreditCardExpireYear, paymentRequest.CreditCardExpireMonth);
+
+            try
             {
-                return Charge(paymentRequest);
+                if (isNewCardSaveAllowed)
+                {
+                    // Vault Add card
+                    dataKey = AddCardToVault(paymentRequest.CreditCardNumber, expireDate, paymentRequest.CustomerId.ToString());
+                    // TODO: save into database
+
+                }
+                Receipt receipt = PerformAuthorizeTransation(dataKey, paymentRequest.CreditCardNumber, expireDate, paymentRequest.CustomerId.ToString(),
+                    paymentRequest.OrderGuid.ToString(), paymentRequest.OrderTotal.ToString(), paymentRequest.CreditCardCvv2);
+
+                result.AvsResult = receipt.GetAvsResultCode();
+                result.Cvv2Result = receipt.GetCvdResultCode();
+                result.AuthorizationTransactionId = receipt.GetTxnNumber();
+                result.AuthorizationTransactionCode = receipt.GetAuthCode();
+                result.AuthorizationTransactionResult = receipt.GetResponseCode();
             }
-            // Step 1: Authorize 
-            var result = Authorize(paymentRequest);
-            // Step 2: check AVS and CVD result
-            bool isValid = false;
-            if (validateAVS)
+            catch (Exception ex)
             {
-                // Check AVS result
-                string avsCode = result.AvsResult;
-                isValid = avsCode == AVS_VISA_MATCH || avsCode == AVS_MASTER_OR_DISCOVER_MATCH || avsCode == AVS_AMEX_OR_JCB_MATCH;
+                result.AddError(ex.Message);
             }
-            if (validateCVD)
-            {
-                isValid = isValid && result.Cvv2Result == "1M";
-                // Check CVD result
-            }
-            // Step 3: Perform Authorization Completion transaction based on check result
-            var completionAmount = isValid ? paymentRequest.OrderTotal.ToString() : "0.00";
-            var completion = CreateCompletion(paymentRequest.OrderGuid.ToString(), completionAmount, result.AuthorizationTransactionId);
+
+            return result;
+        }
+
+        // TODO: need refactor
+        public ProcessPaymentResult Capture(string orderId, string amount, string authTransactionNumber)
+        {
+            var result = new ProcessPaymentResult();
+
+            var completion = CreateCompletion(orderId, amount, authTransactionNumber);
+
             try
             {
                 var receipt = PerformTransation(completion);
                 // Build result
-                ConvertToChargeResult(receipt, result);
+
             }
             catch (Exception ex)
             {
@@ -213,77 +270,6 @@ namespace Self.Plugin.Payments.Moneris.Services
             return cvdCheck;
         }
 
-        public ProcessPaymentResult Authorize(ProcessPaymentRequest paymentRequest)
-        {
-            var result = new ProcessPaymentResult();
-
-            var dataKey = paymentRequest.CustomValues["SavedCardVault"] as string;
-            var isNewCardSaveAllowed = System.Convert.ToBoolean(paymentRequest.CustomValues["IsNewCardSaveAllowed"]);
-            // Expire date "YYMM" format
-            var expireDate = GetExpireDate(paymentRequest.CreditCardExpireYear, paymentRequest.CreditCardExpireMonth);
-
-            try
-            {
-                if (isNewCardSaveAllowed)
-                {
-                    // Vault Add card
-                    dataKey = AddCardToVault(paymentRequest.CreditCardNumber, expireDate, paymentRequest.CustomerId.ToString());
-                    // TODO: save into database
-
-                }
-                Receipt receipt = null;
-                if (!string.IsNullOrEmpty(dataKey))
-                {
-                    // Create auth with dataKey
-                    var auth = CreateAuthWithVault(dataKey, paymentRequest.OrderGuid.ToString(),
-                        paymentRequest.OrderTotal.ToString(), paymentRequest.CreditCardCvv2);
-
-                    receipt = PerformTransation(auth);
-                }
-                else
-                {
-                    // Create auth
-                    var auth = CreateAuth(paymentRequest.CreditCardNumber, expireDate, paymentRequest.CustomerId.ToString(),
-                        paymentRequest.OrderGuid.ToString(), paymentRequest.OrderTotal.ToString(), paymentRequest.CreditCardCvv2);
-
-                    receipt = PerformTransation(auth);
-                }
-
-                result.AvsResult = receipt.GetAvsResultCode();
-                result.Cvv2Result = receipt.GetCvdResultCode();
-                result.AuthorizationTransactionId = receipt.GetTxnNumber();
-                result.AuthorizationTransactionCode = receipt.GetAuthCode();
-                result.AuthorizationTransactionResult = receipt.GetResponseCode();
-            }
-            catch (Exception ex)
-            {
-                result.AddError(ex.Message);
-            }
-
-            return result;
-        }
-
-        // TODO: need refactor
-        public ProcessPaymentResult Capture(string orderId, string amount, string authTransactionNumber)
-        {
-            var result = new ProcessPaymentResult();
-
-            var completion = CreateCompletion(orderId, amount, authTransactionNumber);
-
-            try
-            {
-                var receipt = PerformTransation(completion);
-                // Build result
-
-            }
-            catch(Exception ex)
-            {
-                result.AddError(ex.Message);
-            }
-
-            return result;
-        }
-
         private Receipt PerformTransation(Transaction transaction)
         {
             _transactionRequest.SetTransaction(transaction);
@@ -291,45 +277,24 @@ namespace Self.Plugin.Payments.Moneris.Services
             return _transactionRequest.GetReceipt();
         }
 
-        private Receipt PerformAuthorizeTransation(string cardNumber, string expireDate, string customerId, string orderId, string amount, string cvd)
+        private Receipt PerformAuthorizeTransation(string dataKey, string cardNumber, string expireDate, string customerId, string orderId, string amount, string cvd)
         {
-            var dataKey = paymentRequest.CustomValues["SavedCardVault"] as string;
-            var isNewCardSaveAllowed = System.Convert.ToBoolean(paymentRequest.CustomValues["IsNewCardSaveAllowed"]);
-            // Expire date "YYMM" format
-            var expireDate = GetExpireDate(paymentRequest.CreditCardExpireYear, paymentRequest.CreditCardExpireMonth);
-
-            try
+            Receipt receipt = null;
+            if (!string.IsNullOrEmpty(dataKey))
             {
-                if (isNewCardSaveAllowed)
-                {
-                    // Vault Add card
-                    dataKey = AddCardToVault(paymentRequest.CreditCardNumber, expireDate, paymentRequest.CustomerId.ToString());
-                    // TODO: save into database
+                // Create auth with dataKey
+                var auth = CreateAuthWithVault(dataKey, orderId, amount, cvd);
+                receipt = PerformTransation(auth);
+            }
+            else
+            {
+                // Create auth
+                var auth = CreateAuth(cardNumber, expireDate, customerId, orderId, amount, cvd);
+                receipt = PerformTransation(auth);
+            }
 
-                }
-                Receipt receipt = null;
-                if (!string.IsNullOrEmpty(dataKey))
-                {
-                    // Create auth with dataKey
-                    var auth = CreateAuthWithVault(dataKey, paymentRequest.OrderGuid.ToString(),
-                        paymentRequest.OrderTotal.ToString(), paymentRequest.CreditCardCvv2);
-
-                    receipt = PerformTransation(auth);
-                }
-                else
-                {
-                    // Create auth
-                    var auth = CreateAuth(paymentRequest.CreditCardNumber, expireDate, paymentRequest.CustomerId.ToString(),
-                        paymentRequest.OrderGuid.ToString(), paymentRequest.OrderTotal.ToString(), paymentRequest.CreditCardCvv2);
-
-                    receipt = PerformTransation(auth);
-                }
-
-                _transactionRequest.SetTransaction(transaction);
-            _transactionRequest.Send();
-            return _transactionRequest.GetReceipt();
+            return receipt;
         }
-
 
         private void ConvertToChargeResult(Receipt receipt, ProcessPaymentResult result)
         {
