@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Customer",
+  "FriendlyName": "Saving Counter",
+  "SystemName": "Self.Customer.SavingCounter",
+  "Version": "1.0",
+  "SupportedVersions": [ "4.20" ],
+  "Author": "Self",
+  "DisplayOrder": 1,
+  "FileName": "Self.Plugin.Customer.SavingCounter.dll",
+  "Description": "Customer total savings counter"
+}
