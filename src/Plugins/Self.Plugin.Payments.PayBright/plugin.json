@@ -3,7 +3,7 @@
   "FriendlyName": "PayBright Financing",
   "SystemName": "Payments.PayBright",
   "Version": "1.00",
-  "SupportedVersions": [ "4.00" ],
+  "SupportedVersions": [ "4.20" ],
   "Author": "David",
   "DisplayOrder": 1,
   "FileName": "Self.Plugin.Payments.PayBright.dll",
