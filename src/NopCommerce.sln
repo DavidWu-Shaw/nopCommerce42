@@ -65,6 +65,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Self.Plugin.Customer.Saving
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Self.Plugin.Payments.Moneris", "Plugins\Self.Plugin.Payments.Moneris\Self.Plugin.Payments.Moneris.csproj", "{CB0D6EC2-169E-490A-99E4-3DA0140375EF}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Self.Plugin.Payments.PayBright", "Plugins\Slef.Plugin.Payments.PayBright\Self.Plugin.Payments.PayBright.csproj", "{3CE967FA-FB41-483A-80CF-E85AEDE37982}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -477,6 +479,22 @@ Global
 		{CB0D6EC2-169E-490A-99E4-3DA0140375EF}.Release|x64.Build.0 = Release|Any CPU
 		{CB0D6EC2-169E-490A-99E4-3DA0140375EF}.Release|x86.ActiveCfg = Release|Any CPU
 		{CB0D6EC2-169E-490A-99E4-3DA0140375EF}.Release|x86.Build.0 = Release|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Debug|x64.Build.0 = Debug|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Debug|x86.Build.0 = Debug|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Release|x64.ActiveCfg = Release|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Release|x64.Build.0 = Release|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Release|x86.ActiveCfg = Release|Any CPU
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -509,6 +527,7 @@ Global
 		{2426B75D-23D4-41EF-8924-47650C8A18C7} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
 		{3DFBE46D-B453-4645-AE2D-F7CC23989801} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
 		{CB0D6EC2-169E-490A-99E4-3DA0140375EF} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
+		{3CE967FA-FB41-483A-80CF-E85AEDE37982} = {7881B112-7843-4542-B1F7-F99553FB9BB7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EE72A8B2-332A-4175-9319-6726D36E9D25}
