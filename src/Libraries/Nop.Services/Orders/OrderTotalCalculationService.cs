@@ -817,6 +817,10 @@ namespace Nop.Services.Orders
             //We calculate discount amount on order subtotal excl tax (discount first)
             //calculate discount amount ('Applied to order subtotal' discount)
             var discountAmountExclTax = GetOrderSubtotalDiscount(customer, subTotalExclTaxWithoutDiscount, out appliedDiscounts);
+            //  Calculate Buywell special discount on products for matching price
+            var discountAmountForMatchingExclTax = GetOrderSubtotalDiscountOnProducts(cart, out var _);
+            discountAmountExclTax += discountAmountForMatchingExclTax;
+
             if (subTotalExclTaxWithoutDiscount < discountAmountExclTax)
                 discountAmountExclTax = subTotalExclTaxWithoutDiscount;
             var discountAmountInclTax = discountAmountExclTax;
@@ -871,6 +875,24 @@ namespace Nop.Services.Orders
 
             if (_shoppingCartSettings.RoundPricesDuringCalculation)
                 subTotalWithDiscount = _priceCalculationService.RoundPrice(subTotalWithDiscount);
+        }
+
+        private decimal GetOrderSubtotalDiscountOnProducts(IList<ShoppingCartItem> cart, out List<DiscountForCaching> appliedDiscounts)
+        {
+            appliedDiscounts = new List<DiscountForCaching>();
+            var discountAmount = 0m;
+            foreach (var item in cart)
+            {
+                var saving = _genericAttributeService.GetAttribute<decimal>(item.Product, SystemProductAttributeKeys.InstantSaving, _storeContext.CurrentStore.Id);
+                if (saving > 0)
+                {
+                    discountAmount += saving * item.Quantity;
+                    var appliedDiscount = new DiscountForCaching { Name = item.Product.Name, DiscountAmount = saving * item.Quantity };
+                    appliedDiscounts.Add(appliedDiscount);
+                }
+            }
+
+            return discountAmount;
         }
 
         /// <summary>
