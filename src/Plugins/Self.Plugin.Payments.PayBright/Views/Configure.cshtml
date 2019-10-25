@@ -1,0 +1,110 @@
+﻿@model Self.Plugin.Payments.PayBright.Models.ConfigurationModel
+@{
+    Layout = "_ConfigurePlugin";
+}
+@await Component.InvokeAsync("StoreScopeConfiguration")
+<form asp-controller="PaymentPayBright" asp-action="Configure" method="post">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @Html.Raw(T("Plugins.Payments.PayBright.Instructions").Text)
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="UseSandbox_OverrideForStore" asp-input="UseSandbox" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="UseSandbox" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="UseSandbox" />
+                        <span asp-validation-for="UseSandbox"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="StoreId_OverrideForStore" asp-input="StoreId" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="StoreId" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="StoreId" />
+                        <span asp-validation-for="StoreId"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="ApiToken_OverrideForStore" asp-input="ApiToken" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="ApiToken" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ApiToken" />
+                        <span asp-validation-for="ApiToken"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="PublicKey_OverrideForStore" asp-input="PublicKey" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="PublicKey" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="PublicKey" />
+                        <span asp-validation-for="PublicKey"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="Crypt_OverrideForStore" asp-input="Crypt" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="Crypt" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="Crypt" />
+                        <span asp-validation-for="Crypt"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="DynamicDescriptor_OverrideForStore" asp-input="DynamicDescriptor" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="DynamicDescriptor" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="DynamicDescriptor" />
+                        <span asp-validation-for="DynamicDescriptor"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="ValidateAddress_OverrideForStore" asp-input="ValidateAddress" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="ValidateAddress" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="ValidateAddress" />
+                        <span asp-validation-for="ValidateAddress"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="AdditionalFee_OverrideForStore" asp-input="AdditionalFee" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="AdditionalFee" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="AdditionalFee" />
+                        <span asp-validation-for="AdditionalFee"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-3">
+                        <nop-override-store-checkbox asp-for="AdditionalFeePercentage_OverrideForStore" asp-input="AdditionalFeePercentage" asp-store-scope="@Model.ActiveStoreScopeConfiguration" />
+                        <nop-label asp-for="AdditionalFeePercentage" />
+                    </div>
+                    <div class="col-md-9">
+                        <nop-editor asp-for="AdditionalFeePercentage" />
+                        <span asp-validation-for="AdditionalFeePercentage"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-md-9 col-md-offset-3">
+                        <input type="submit" name="save" class="btn btn-primary" value="@T("Admin.Common.Save")" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

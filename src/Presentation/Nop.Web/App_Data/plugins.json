@@ -17,7 +17,8 @@
     "Widgets.NivoSlider",
     "ExternalAuth.Facebook",
     "Self.Customer.SavingCounter",
-    "Payments.Moneris"
+    "Payments.Moneris",
+    "Payments.PayBright"
   ],
   "PluginNamesToUninstall": [],
   "PluginNamesToDelete": [],
