@@ -856,8 +856,6 @@ namespace Nop.Web.Areas.Admin.Controllers
 
                 //save RewardPoint into generic attribute table
                 _genericAttributeService.SaveAttribute(product, SystemProductAttributeKeys.RewardPoint, model.RewardPoint, _storeContext.CurrentStore.Id);
-                //save InstantSaving into generic attribute table
-                _genericAttributeService.SaveAttribute(product, SystemProductAttributeKeys.InstantSaving, model.InstantSaving, _storeContext.CurrentStore.Id);
 
                 //quantity change history
                 _productService.AddStockQuantityHistoryEntry(product, product.StockQuantity, product.StockQuantity, product.WarehouseId,
@@ -900,7 +898,6 @@ namespace Nop.Web.Areas.Admin.Controllers
             var model = _productModelFactory.PrepareProductModel(null, product);
 
             model.RewardPoint = _genericAttributeService.GetAttribute<int>(product, SystemProductAttributeKeys.RewardPoint, _storeContext.CurrentStore.Id);
-            model.InstantSaving = _genericAttributeService.GetAttribute<decimal>(product, SystemProductAttributeKeys.InstantSaving, _storeContext.CurrentStore.Id);
 
             return View(model);
         }
@@ -1047,8 +1044,6 @@ namespace Nop.Web.Areas.Admin.Controllers
 
                 //save RewardPoint into generic attribute table
                 _genericAttributeService.SaveAttribute(product, SystemProductAttributeKeys.RewardPoint, model.RewardPoint, _storeContext.CurrentStore.Id);
-                //save InstantSaving into generic attribute table
-                _genericAttributeService.SaveAttribute(product, SystemProductAttributeKeys.InstantSaving, model.InstantSaving, _storeContext.CurrentStore.Id);
 
                 //activity log
                 _customerActivityService.InsertActivity("EditProduct",

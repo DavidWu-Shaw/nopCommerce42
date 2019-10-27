@@ -206,7 +206,7 @@ namespace Nop.Web.Factories
 
             var priceModel = new ProductOverviewModel.ProductPriceModel
             {
-                ForceRedirectionAfterAddingToCart = forceRedirectionAfterAddingToCart
+                ForceRedirectionAfterAddingToCart = forceRedirectionAfterAddingToCart,
             };
 
             switch (product.ProductType)
@@ -292,6 +292,8 @@ namespace Nop.Web.Factories
                     var oldPrice = _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase, _workContext.WorkingCurrency);
                     var finalPriceWithoutDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithoutDiscountBase, _workContext.WorkingCurrency);
                     var finalPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithDiscountBase, _workContext.WorkingCurrency);
+
+                    priceModel.InstantSaving = _priceFormatter.FormatPrice(product.InstantSaving);
 
                     //do we have tier prices configured?
                     var tierPrices = new List<TierPrice>();
@@ -596,6 +598,8 @@ namespace Nop.Web.Factories
                             model.OldPrice = _priceFormatter.FormatPrice(oldPrice);
 
                         model.Price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount);
+
+                        model.InstantSaving = _priceFormatter.FormatPrice(product.InstantSaving);
 
                         if (finalPriceWithoutDiscountBase != finalPriceWithDiscountBase)
                             model.PriceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount);

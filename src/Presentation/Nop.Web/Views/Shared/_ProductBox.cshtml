@@ -63,6 +63,10 @@
                     <span class="price old-price">@Model.ProductPrice.OldPrice</span>
                 }
                 <span class="price actual-price">@Model.ProductPrice.Price</span>
+                @if (!string.IsNullOrEmpty(Model.ProductPrice.InstantSaving))
+                {
+                    <span class="price">@Model.ProductPrice.InstantSaving</span>
+                }
                 @if (Model.ProductPrice.DisplayTaxShippingInfo)
                 {
                     var inclTax = workContext.TaxDisplayType == TaxDisplayType.IncludingTax;
