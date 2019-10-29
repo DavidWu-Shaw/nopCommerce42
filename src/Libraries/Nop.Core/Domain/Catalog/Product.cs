@@ -423,10 +423,6 @@ namespace Nop.Core.Domain.Catalog
         /// Gets or sets the product cost
         /// </summary>
         public decimal ProductCost { get; set; }
-        /// <summary>
-        /// Gets or sets the instant saving for price matching
-        /// </summary>
-        public decimal InstantSaving { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether a customer enters price

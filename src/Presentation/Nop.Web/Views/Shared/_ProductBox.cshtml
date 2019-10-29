@@ -66,6 +66,7 @@
                 @if (!string.IsNullOrEmpty(Model.ProductPrice.InstantSaving))
                 {
                     <span class="price">@Model.ProductPrice.InstantSaving</span>
+                    <span class="label">@T("ProductPrice.InstantSaving")</span>
                 }
                 @if (Model.ProductPrice.DisplayTaxShippingInfo)
                 {

@@ -30,6 +30,12 @@
                             <div class="name">
                                 <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
                             </div>
+                            @if (!string.IsNullOrEmpty(item.InstantSaving))
+                            {
+                                <span class="price">@item.InstantSaving</span>
+                                <span class="label">@T("ProductPrice.InstantSaving")</span>
+                            }
+
                             @if (!string.IsNullOrEmpty(item.AttributeInfo))
                             {
                                 <div class="attributes">

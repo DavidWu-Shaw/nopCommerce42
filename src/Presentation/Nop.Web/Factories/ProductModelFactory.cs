@@ -293,7 +293,7 @@ namespace Nop.Web.Factories
                     var finalPriceWithoutDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithoutDiscountBase, _workContext.WorkingCurrency);
                     var finalPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithDiscountBase, _workContext.WorkingCurrency);
 
-                    priceModel.InstantSaving = _priceFormatter.FormatPrice(product.InstantSaving);
+                    priceModel.InstantSaving = product.MatchingPrice.HasValue ? _priceFormatter.FormatPrice(product.Price - product.MatchingPrice.Value) : string.Empty;
 
                     //do we have tier prices configured?
                     var tierPrices = new List<TierPrice>();
@@ -599,7 +599,7 @@ namespace Nop.Web.Factories
 
                         model.Price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount);
 
-                        model.InstantSaving = _priceFormatter.FormatPrice(product.InstantSaving);
+                        model.InstantSaving = product.MatchingPrice.HasValue ? _priceFormatter.FormatPrice(product.Price - product.MatchingPrice.Value) : string.Empty;
 
                         if (finalPriceWithoutDiscountBase != finalPriceWithDiscountBase)
                             model.PriceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount);
