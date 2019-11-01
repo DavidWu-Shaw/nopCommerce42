@@ -7,6 +7,6 @@ namespace Nop.Core.Domain.Catalog
 {
     public partial class Product : BaseEntity, ILocalizedEntity, ISlugSupported, IAclSupported, IStoreMappingSupported
     {
-        public decimal? MatchingPrice { get; set; }
+        public decimal? InstantRebate { get; set; }
     }
 }

@@ -336,8 +336,8 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         [NopResourceDisplayName("Admin.Catalog.Products.Fields.RewardPoint")]
         public int RewardPoint { get; set; }
 
-        [NopResourceDisplayName("Admin.Catalog.Products.Fields.MatchingPrice")]
-        public decimal? MatchingPrice { get; set; }
+        [NopResourceDisplayName("Admin.Catalog.Products.Fields.InstantRebate")]
+        public decimal? InstantRebate { get; set; }
 
         [NopResourceDisplayName("Admin.Catalog.Products.Fields.BasepriceUnit")]
         public int BasepriceUnitId { get; set; }

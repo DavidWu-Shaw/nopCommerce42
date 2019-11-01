@@ -363,7 +363,7 @@ namespace Nop.Web.Factories
                 AttributeInfo = _productAttributeFormatter.FormatAttributes(sci.Product, sci.AttributesXml),
             };
 
-            cartItemModel.InstantSaving = sci.Product.MatchingPrice.HasValue ? _priceFormatter.FormatPrice(sci.Product.Price - sci.Product.MatchingPrice.Value) : string.Empty;
+            cartItemModel.InstantSaving = sci.Product.InstantRebate.HasValue && sci.Product.InstantRebate.Value > 0 ? _priceFormatter.FormatPrice(sci.Product.InstantRebate.Value) : string.Empty;
 
             //allow editing?
             //1. setting enabled?
@@ -1034,7 +1034,7 @@ namespace Nop.Web.Factories
                             AttributeInfo = _productAttributeFormatter.FormatAttributes(sci.Product, sci.AttributesXml)
                         };
 
-                        cartItemModel.InstantSaving = sci.Product.MatchingPrice.HasValue ? _priceFormatter.FormatPrice(sci.Product.Price - sci.Product.MatchingPrice.Value) : string.Empty;
+                        cartItemModel.InstantSaving = sci.Product.InstantRebate.HasValue && sci.Product.InstantRebate.Value > 0 ? _priceFormatter.FormatPrice(sci.Product.InstantRebate.Value) : string.Empty;
 
                         //unit prices
                         if (sci.Product.CallForPrice &&

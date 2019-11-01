@@ -884,13 +884,10 @@ namespace Nop.Services.Orders
             var discountAmount = 0m;
             foreach (var item in cart)
             {
-                if (item.Product.MatchingPrice.HasValue)
+                if (item.Product.InstantRebate.HasValue && item.Product.InstantRebate.Value > 0)
                 {
-                    decimal instantSaving = item.Product.Price - item.Product.MatchingPrice.Value;
-                    // In case instantSaving is less than 0, set to 0
-                    instantSaving = instantSaving < 0 ? 0m : instantSaving;
-                    discountAmount += instantSaving * item.Quantity;
-                    var appliedDiscount = new DiscountForCaching { Name = item.Product.Name, DiscountAmount = instantSaving * item.Quantity };
+                    discountAmount += item.Product.InstantRebate.Value * item.Quantity;
+                    var appliedDiscount = new DiscountForCaching { Name = item.Product.Name, DiscountAmount = item.Product.InstantRebate.Value * item.Quantity };
                     appliedDiscounts.Add(appliedDiscount);
                 }
             }
