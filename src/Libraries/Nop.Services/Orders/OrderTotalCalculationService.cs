@@ -751,14 +751,23 @@ namespace Nop.Services.Orders
             //sub totals
             var subTotalExclTaxWithoutDiscount = decimal.Zero;
             var subTotalInclTaxWithoutDiscount = decimal.Zero;
+            var subtotalDiscountOnProducts = decimal.Zero;
             foreach (var shoppingCartItem in cart)
             {
-                var sciSubTotal = _priceCalculationService.GetSubTotal(shoppingCartItem);
+                var sciSubTotal = _priceCalculationService.GetSubTotal(shoppingCartItem, true, out _, out var appliedDiscountsForProduct, out _);
 
                 var sciExclTax = _taxService.GetProductPrice(shoppingCartItem.Product, sciSubTotal, false, customer, out var taxRate);
                 var sciInclTax = _taxService.GetProductPrice(shoppingCartItem.Product, sciSubTotal, true, customer, out taxRate);
                 subTotalExclTaxWithoutDiscount += sciExclTax;
                 subTotalInclTaxWithoutDiscount += sciInclTax;
+
+                // Calculate instant saving based on special rebate discount on Product
+                var specialRebateDiscount = appliedDiscountsForProduct.FirstOrDefault(o => o.Name.StartsWith(DiscountService.SPECIAL_REBATE_DISCOUNT_PREFIX));
+                if (specialRebateDiscount != null)
+                {
+                    var rebateAmount = _discountService.GetDiscountAmount(specialRebateDiscount, sciSubTotal/shoppingCartItem.Quantity) * shoppingCartItem.Quantity;
+                    subtotalDiscountOnProducts += rebateAmount;
+                }
 
                 //tax rates
                 var sciTax = sciInclTax - sciExclTax;
@@ -817,10 +826,7 @@ namespace Nop.Services.Orders
             //We calculate discount amount on order subtotal excl tax (discount first)
             //calculate discount amount ('Applied to order subtotal' discount)
             var discountAmountExclTax = GetOrderSubtotalDiscount(customer, subTotalExclTaxWithoutDiscount, out appliedDiscounts);
-            //  Calculate special discount on products for matching price
-            var discountAmountForMatchingExclTax = GetOrderSubtotalDiscountOnProducts(cart, out var appliedProductDiscounts);
-            discountAmountExclTax += discountAmountForMatchingExclTax;
-            appliedDiscounts.AddRange(appliedProductDiscounts);
+            discountAmountExclTax += subtotalDiscountOnProducts;
 
             if (subTotalExclTaxWithoutDiscount < discountAmountExclTax)
                 discountAmountExclTax = subTotalExclTaxWithoutDiscount;
@@ -876,23 +882,6 @@ namespace Nop.Services.Orders
 
             if (_shoppingCartSettings.RoundPricesDuringCalculation)
                 subTotalWithDiscount = _priceCalculationService.RoundPrice(subTotalWithDiscount);
-        }
-
-        private decimal GetOrderSubtotalDiscountOnProducts(IList<ShoppingCartItem> cart, out List<DiscountForCaching> appliedDiscounts)
-        {
-            appliedDiscounts = new List<DiscountForCaching>();
-            var discountAmount = 0m;
-            foreach (var item in cart)
-            {
-                if (item.Product.InstantRebate.HasValue && item.Product.InstantRebate.Value > 0)
-                {
-                    discountAmount += item.Product.InstantRebate.Value * item.Quantity;
-                    var appliedDiscount = new DiscountForCaching { Name = item.Product.Name, DiscountAmount = item.Product.InstantRebate.Value * item.Quantity };
-                    appliedDiscounts.Add(appliedDiscount);
-                }
-            }
-
-            return discountAmount;
         }
 
         /// <summary>
