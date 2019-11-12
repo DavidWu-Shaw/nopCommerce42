@@ -32,6 +32,7 @@ namespace Nop.Services.Discounts
         public string CouponCode { get; set; }
 
         public bool IsCumulative { get; set; }
+        public bool IsAdditionalSaving { get; set; }
 
         public int DiscountLimitationId { get; set; }
 

@@ -751,14 +751,23 @@ namespace Nop.Services.Orders
             //sub totals
             var subTotalExclTaxWithoutDiscount = decimal.Zero;
             var subTotalInclTaxWithoutDiscount = decimal.Zero;
+            var subtotalDiscountOnProducts = decimal.Zero;
             foreach (var shoppingCartItem in cart)
             {
-                var sciSubTotal = _priceCalculationService.GetSubTotal(shoppingCartItem);
+                var sciSubTotal = _priceCalculationService.GetSubTotal(shoppingCartItem, true, out _, out var appliedDiscountsForProduct, out _);
 
                 var sciExclTax = _taxService.GetProductPrice(shoppingCartItem.Product, sciSubTotal, false, customer, out var taxRate);
                 var sciInclTax = _taxService.GetProductPrice(shoppingCartItem.Product, sciSubTotal, true, customer, out taxRate);
                 subTotalExclTaxWithoutDiscount += sciExclTax;
                 subTotalInclTaxWithoutDiscount += sciInclTax;
+
+                // Calculate instant saving based on special rebate discount on Product
+                var specialRebateDiscount = appliedDiscountsForProduct.FirstOrDefault(o => o.IsAdditionalSaving);
+                if (specialRebateDiscount != null)
+                {
+                    var rebateAmount = _discountService.GetDiscountAmount(specialRebateDiscount, sciSubTotal/shoppingCartItem.Quantity) * shoppingCartItem.Quantity;
+                    subtotalDiscountOnProducts += rebateAmount;
+                }
 
                 //tax rates
                 var sciTax = sciInclTax - sciExclTax;
@@ -817,6 +826,8 @@ namespace Nop.Services.Orders
             //We calculate discount amount on order subtotal excl tax (discount first)
             //calculate discount amount ('Applied to order subtotal' discount)
             var discountAmountExclTax = GetOrderSubtotalDiscount(customer, subTotalExclTaxWithoutDiscount, out appliedDiscounts);
+            discountAmountExclTax += subtotalDiscountOnProducts;
+
             if (subTotalExclTaxWithoutDiscount < discountAmountExclTax)
                 discountAmountExclTax = subTotalExclTaxWithoutDiscount;
             var discountAmountInclTax = discountAmountExclTax;

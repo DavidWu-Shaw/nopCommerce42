@@ -172,6 +172,8 @@ namespace Nop.Web.Models.Catalog
             public string PriceWithDiscount { get; set; }
             public decimal PriceValue { get; set; }
 
+            public string InstantSaving { get; set; }
+
             public bool CustomerEntersPrice { get; set; }
 
             public bool CallForPrice { get; set; }

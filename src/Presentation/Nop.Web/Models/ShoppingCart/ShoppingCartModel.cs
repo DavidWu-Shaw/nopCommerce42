@@ -65,7 +65,7 @@ namespace Nop.Web.Models.ShoppingCart
             public int ProductId { get; set; }
 
             public string ProductName { get; set; }
-
+            public string InstantSaving { get; set; }
             public string ProductSeName { get; set; }
 
             public string UnitPrice { get; set; }

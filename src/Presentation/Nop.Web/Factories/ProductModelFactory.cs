@@ -16,6 +16,7 @@ using Nop.Core.Domain.Vendors;
 using Nop.Services.Catalog;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
+using Nop.Services.Discounts;
 using Nop.Services.Helpers;
 using Nop.Services.Localization;
 using Nop.Services.Media;
@@ -71,6 +72,7 @@ namespace Nop.Web.Factories
         private readonly OrderSettings _orderSettings;
         private readonly SeoSettings _seoSettings;
         private readonly VendorSettings _vendorSettings;
+        private readonly IDiscountService _discountService;
 
         #endregion
 
@@ -108,6 +110,7 @@ namespace Nop.Web.Factories
             MediaSettings mediaSettings,
             OrderSettings orderSettings,
             SeoSettings seoSettings,
+            IDiscountService discountService,
             VendorSettings vendorSettings)
         {
             _captchaSettings = captchaSettings;
@@ -143,6 +146,7 @@ namespace Nop.Web.Factories
             _orderSettings = orderSettings;
             _seoSettings = seoSettings;
             _vendorSettings = vendorSettings;
+            _discountService = discountService;
         }
 
         #endregion
@@ -274,7 +278,8 @@ namespace Nop.Web.Factories
                 {
                     //prices
                     var minPossiblePriceWithoutDiscount = _priceCalculationService.GetFinalPrice(product, _workContext.CurrentCustomer, includeDiscounts: false);
-                    var minPossiblePriceWithDiscount = _priceCalculationService.GetFinalPrice(product, _workContext.CurrentCustomer, includeDiscounts: true);
+                    var minPossiblePriceWithDiscount = _priceCalculationService.GetFinalPrice(product, _workContext.CurrentCustomer, 0, true, 1,
+                        out _, out var appliedDiscounts);
 
                     if (product.HasTierPrices)
                     {
@@ -292,6 +297,14 @@ namespace Nop.Web.Factories
                     var oldPrice = _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase, _workContext.WorkingCurrency);
                     var finalPriceWithoutDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithoutDiscountBase, _workContext.WorkingCurrency);
                     var finalPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithDiscountBase, _workContext.WorkingCurrency);
+
+                    // Calculate instant saving based on special rebate discount
+                    var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.IsAdditionalSaving);
+                    if (specialRebateDiscount != null)
+                    {
+                        var rebateAmount = _discountService.GetDiscountAmount(specialRebateDiscount, finalPriceWithDiscountBase);
+                        priceModel.InstantSaving = rebateAmount > 0 ? _priceFormatter.FormatPrice(rebateAmount) : string.Empty;
+                    }
 
                     //do we have tier prices configured?
                     var tierPrices = new List<TierPrice>();
@@ -586,7 +599,9 @@ namespace Nop.Web.Factories
                     {
                         var oldPriceBase = _taxService.GetProductPrice(product, product.OldPrice, out decimal _);
                         var finalPriceWithoutDiscountBase = _taxService.GetProductPrice(product, _priceCalculationService.GetFinalPrice(product, _workContext.CurrentCustomer, includeDiscounts: false), out _);
-                        var finalPriceWithDiscountBase = _taxService.GetProductPrice(product, _priceCalculationService.GetFinalPrice(product, _workContext.CurrentCustomer, includeDiscounts: true), out _);
+                        var finalPriceWithDiscountBase = _taxService.GetProductPrice(product, 
+                            _priceCalculationService.GetFinalPrice(product, _workContext.CurrentCustomer, 0, true, 1, out _, out var appliedDiscounts),
+                            out _);
 
                         var oldPrice = _currencyService.ConvertFromPrimaryStoreCurrency(oldPriceBase, _workContext.WorkingCurrency);
                         var finalPriceWithoutDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithoutDiscountBase, _workContext.WorkingCurrency);
@@ -596,6 +611,13 @@ namespace Nop.Web.Factories
                             model.OldPrice = _priceFormatter.FormatPrice(oldPrice);
 
                         model.Price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount);
+                        // Calculate instant saving based on special rebate discount
+                        var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.IsAdditionalSaving);
+                        if (specialRebateDiscount != null)
+                        {
+                            var rebateAmount = _discountService.GetDiscountAmount(specialRebateDiscount, finalPriceWithDiscountBase);
+                            model.InstantSaving = rebateAmount > 0 ? _priceFormatter.FormatPrice(rebateAmount) : string.Empty;
+                        }
 
                         if (finalPriceWithoutDiscountBase != finalPriceWithDiscountBase)
                             model.PriceWithDiscount = _priceFormatter.FormatPrice(finalPriceWithDiscount);
