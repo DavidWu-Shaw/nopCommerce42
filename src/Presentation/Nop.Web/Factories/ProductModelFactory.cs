@@ -210,7 +210,7 @@ namespace Nop.Web.Factories
 
             var priceModel = new ProductOverviewModel.ProductPriceModel
             {
-                ForceRedirectionAfterAddingToCart = forceRedirectionAfterAddingToCart,
+                ForceRedirectionAfterAddingToCart = forceRedirectionAfterAddingToCart
             };
 
             switch (product.ProductType)

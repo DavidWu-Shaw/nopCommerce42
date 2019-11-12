@@ -118,52 +118,52 @@
                                         <a href="@Url.RouteUrl("Product", new {SeName = item.ProductSeName})"><img alt="@item.Picture.AlternateText" src="@item.Picture.ImageUrl" title="@item.Picture.Title" /></a>
                                     </td>
                                 }
-                                    <td class="product">
-                                        <a href="@Url.RouteUrl("Product", new {SeName = item.ProductSeName})" class="product-name">@item.ProductName</a>
-                                        @if (!string.IsNullOrEmpty(item.InstantSaving))
-                                        {
-                                            <span class="price">@item.InstantSaving</span>
-                                            <span class="label">@T("ProductPrice.InstantSaving")</span>
-                                        }
+                                <td class="product">
+                                    <a href="@Url.RouteUrl("Product", new {SeName = item.ProductSeName})" class="product-name">@item.ProductName</a>
+                                    @if (!string.IsNullOrEmpty(item.InstantSaving))
+                                    {
+                                        <span class="price">@item.InstantSaving</span>
+                                        <span class="label">@T("ProductPrice.InstantSaving")</span>
+                                    }
 
-                                        @if (!string.IsNullOrEmpty(item.AttributeInfo))
-                                        {
-                                            <div class="attributes">
-                                                @Html.Raw(item.AttributeInfo)
-                                            </div>
-                                        }
-                                        @if (!string.IsNullOrEmpty(item.RecurringInfo))
-                                        {
-                                            <div class="recurring-info">
-                                                @Html.Raw(item.RecurringInfo)
-                                            </div>
-                                        }
-                                        @if (!string.IsNullOrEmpty(item.RentalInfo))
-                                        {
-                                            <div class="rental-info">
-                                                @Html.Raw(item.RentalInfo)
-                                            </div>
-                                        }
-                                        @if (Model.IsEditable && item.AllowItemEditing)
-                                        {
-                                            var editCartItemUrl = Url.RouteUrl("Product", new { SeName = item.ProductSeName }, webHelper.CurrentRequestProtocol);
-                                            editCartItemUrl = webHelper.ModifyQueryString(editCartItemUrl, "updatecartitemid", item.Id.ToString());
-                                            <div class="edit-item">
-                                                <a href="@editCartItemUrl">@T("Common.Edit")</a>
-                                            </div>
-                                        }
-                                        @if (item.Warnings.Count > 0)
-                                        {
-                                            <div class="message-error">
-                                                <ul>
-                                                    @foreach (var warning in item.Warnings)
-                                                    {
-                                                        <li>@Html.Raw(warning)</li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                        }
-                                    </td>
+                                    @if (!string.IsNullOrEmpty(item.AttributeInfo))
+                                    {
+                                        <div class="attributes">
+                                            @Html.Raw(item.AttributeInfo)
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.RecurringInfo))
+                                    {
+                                        <div class="recurring-info">
+                                            @Html.Raw(item.RecurringInfo)
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(item.RentalInfo))
+                                    {
+                                        <div class="rental-info">
+                                            @Html.Raw(item.RentalInfo)
+                                        </div>
+                                    }
+                                    @if (Model.IsEditable && item.AllowItemEditing)
+                                    {
+                                        var editCartItemUrl = Url.RouteUrl("Product", new { SeName = item.ProductSeName }, webHelper.CurrentRequestProtocol);
+                                        editCartItemUrl = webHelper.ModifyQueryString(editCartItemUrl, "updatecartitemid", item.Id.ToString());
+                                        <div class="edit-item">
+                                            <a href="@editCartItemUrl">@T("Common.Edit")</a>
+                                        </div>
+                                    }
+                                    @if (item.Warnings.Count > 0)
+                                    {
+                                        <div class="message-error">
+                                            <ul>
+                                                @foreach (var warning in item.Warnings)
+                                                {
+                                                    <li>@Html.Raw(warning)</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                </td>
                                 @if (Model.ShowVendorName)
                                 {
                                     <td class="vendor">
