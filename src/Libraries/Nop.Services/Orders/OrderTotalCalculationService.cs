@@ -762,7 +762,7 @@ namespace Nop.Services.Orders
                 subTotalInclTaxWithoutDiscount += sciInclTax;
 
                 // Calculate instant saving based on special rebate discount on Product
-                var specialRebateDiscount = appliedDiscountsForProduct.FirstOrDefault(o => o.Name.StartsWith(DiscountService.SPECIAL_REBATE_DISCOUNT_PREFIX));
+                var specialRebateDiscount = appliedDiscountsForProduct.FirstOrDefault(o => o.IsAdditionalSaving);
                 if (specialRebateDiscount != null)
                 {
                     var rebateAmount = _discountService.GetDiscountAmount(specialRebateDiscount, sciSubTotal/shoppingCartItem.Quantity) * shoppingCartItem.Quantity;

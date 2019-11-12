@@ -299,7 +299,7 @@ namespace Nop.Web.Factories
                     var finalPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(finalPriceWithDiscountBase, _workContext.WorkingCurrency);
 
                     // Calculate instant saving based on special rebate discount
-                    var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.Name.StartsWith(DiscountService.SPECIAL_REBATE_DISCOUNT_PREFIX));
+                    var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.IsAdditionalSaving);
                     if (specialRebateDiscount != null)
                     {
                         var rebateAmount = _discountService.GetDiscountAmount(specialRebateDiscount, finalPriceWithDiscountBase);
@@ -612,7 +612,7 @@ namespace Nop.Web.Factories
 
                         model.Price = _priceFormatter.FormatPrice(finalPriceWithoutDiscount);
                         // Calculate instant saving based on special rebate discount
-                        var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.Name.StartsWith(DiscountService.SPECIAL_REBATE_DISCOUNT_PREFIX));
+                        var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.IsAdditionalSaving);
                         if (specialRebateDiscount != null)
                         {
                             var rebateAmount = _discountService.GetDiscountAmount(specialRebateDiscount, finalPriceWithDiscountBase);

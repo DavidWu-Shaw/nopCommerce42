@@ -424,7 +424,7 @@ namespace Nop.Web.Factories
                 var shoppingCartUnitPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(shoppingCartUnitPriceWithDiscountBase, _workContext.WorkingCurrency);
                 cartItemModel.UnitPrice = _priceFormatter.FormatPrice(shoppingCartUnitPriceWithDiscount);
                 // Calculate instant saving based on special rebate discount
-                var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.Name.StartsWith(DiscountService.SPECIAL_REBATE_DISCOUNT_PREFIX));
+                var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.IsAdditionalSaving);
                 if (specialRebateDiscount != null)
                 {
                     var rebateAmount = _discountService.GetDiscountAmount(specialRebateDiscount, shoppingCartUnitPriceWithDiscountBase);
@@ -1058,7 +1058,7 @@ namespace Nop.Web.Factories
                             cartItemModel.UnitPrice = _priceFormatter.FormatPrice(shoppingCartUnitPriceWithDiscount);
 
                             // Calculate instant saving based on special rebate discount
-                            var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.Name.StartsWith(DiscountService.SPECIAL_REBATE_DISCOUNT_PREFIX));
+                            var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.IsAdditionalSaving);
                             if (specialRebateDiscount != null)
                             {
                                 var rebateAmount = _discountService.GetDiscountAmount(specialRebateDiscount, shoppingCartUnitPriceWithDiscountBase);

@@ -22,8 +22,6 @@ namespace Nop.Services.Discounts
     /// </summary>
     public partial class DiscountService : IDiscountService
     {
-        public const string SPECIAL_REBATE_DISCOUNT_PREFIX = "Rebate";
-
         #region Fields
 
         private readonly ICategoryService _categoryService;
@@ -493,6 +491,7 @@ namespace Nop.Services.Discounts
                 RequiresCouponCode = discount.RequiresCouponCode,
                 CouponCode = discount.CouponCode,
                 IsCumulative = discount.IsCumulative,
+                IsAdditionalSaving = discount.IsAdditionalSaving,
                 DiscountLimitationId = discount.DiscountLimitationId,
                 LimitationTimes = discount.LimitationTimes,
                 MaximumDiscountedQuantity = discount.MaximumDiscountedQuantity,
@@ -546,7 +545,7 @@ namespace Nop.Services.Discounts
             var result = new List<DiscountForCaching>();
             // Exclude special rebate discount from calculating, and
             // make sure it's returned as appliedDiscount because it's required to apply special discount logic 
-            var specialRebateDiscount = discounts.FirstOrDefault(o => o.Name.StartsWith(SPECIAL_REBATE_DISCOUNT_PREFIX));
+            var specialRebateDiscount = discounts.FirstOrDefault(o => o.IsAdditionalSaving);
             if (specialRebateDiscount != null)
             {
                 discounts.Remove(specialRebateDiscount);
