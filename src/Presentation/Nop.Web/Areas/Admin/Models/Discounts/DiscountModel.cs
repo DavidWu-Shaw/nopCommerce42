@@ -75,6 +75,8 @@ namespace Nop.Web.Areas.Admin.Models.Discounts
 
         [NopResourceDisplayName("Admin.Promotions.Discounts.Fields.IsCumulative")]
         public bool IsCumulative { get; set; }
+        [NopResourceDisplayName("Admin.Promotions.Discounts.Fields.IsAdditionalSaving")]
+        public bool IsAdditionalSaving { get; set; }
 
         [NopResourceDisplayName("Admin.Promotions.Discounts.Fields.DiscountLimitation")]
         public int DiscountLimitationId { get; set; }

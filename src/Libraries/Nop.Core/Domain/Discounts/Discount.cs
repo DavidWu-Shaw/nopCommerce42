@@ -67,6 +67,10 @@ namespace Nop.Core.Domain.Discounts
         /// Gets or sets a value indicating whether discount can be used simultaneously with other discounts (with the same discount type)
         /// </summary>
         public bool IsCumulative { get; set; }
+        /// <summary>
+        /// Product additional saving in Cart without changing unit price
+        /// </summary>
+        public bool IsAdditionalSaving { get; set; }
 
         /// <summary>
         /// Gets or sets the discount limitation identifier
