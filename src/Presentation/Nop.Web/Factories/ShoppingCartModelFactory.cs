@@ -418,10 +418,20 @@ namespace Nop.Web.Factories
             }
             else
             {
-                var shoppingCartUnitPriceWithDiscountBase = _taxService.GetProductPrice(sci.Product, _priceCalculationService.GetUnitPrice(sci), out var _);
+                var shoppingCartUnitPriceWithDiscountBase = _taxService.GetProductPrice(sci.Product, 
+                    _priceCalculationService.GetUnitPrice(sci, true, out _, out var appliedDiscounts), 
+                    out var _);
                 var shoppingCartUnitPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(shoppingCartUnitPriceWithDiscountBase, _workContext.WorkingCurrency);
                 cartItemModel.UnitPrice = _priceFormatter.FormatPrice(shoppingCartUnitPriceWithDiscount);
+                // Calculate instant saving based on special rebate discount
+                var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.Name.StartsWith(DiscountService.SPECIAL_REBATE_DISCOUNT_PREFIX));
+                if (specialRebateDiscount != null)
+                {
+                    var rebateAmount = _discountService.GetDiscountAmount(specialRebateDiscount, shoppingCartUnitPriceWithDiscountBase);
+                    cartItemModel.InstantSaving = rebateAmount > 0 ? _priceFormatter.FormatPrice(rebateAmount) : string.Empty;
+                }
             }
+
             //subtotal, discount
             if (sci.Product.CallForPrice &&
                 //also check whether the current user is impersonated
@@ -1041,9 +1051,19 @@ namespace Nop.Web.Factories
                         }
                         else
                         {
-                            var shoppingCartUnitPriceWithDiscountBase = _taxService.GetProductPrice(sci.Product, _priceCalculationService.GetUnitPrice(sci), out var _);
+                            var shoppingCartUnitPriceWithDiscountBase = _taxService.GetProductPrice(sci.Product, 
+                                _priceCalculationService.GetUnitPrice(sci, true, out _, out var appliedDiscounts), 
+                                out var _);
                             var shoppingCartUnitPriceWithDiscount = _currencyService.ConvertFromPrimaryStoreCurrency(shoppingCartUnitPriceWithDiscountBase, _workContext.WorkingCurrency);
                             cartItemModel.UnitPrice = _priceFormatter.FormatPrice(shoppingCartUnitPriceWithDiscount);
+
+                            // Calculate instant saving based on special rebate discount
+                            var specialRebateDiscount = appliedDiscounts.FirstOrDefault(o => o.Name.StartsWith(DiscountService.SPECIAL_REBATE_DISCOUNT_PREFIX));
+                            if (specialRebateDiscount != null)
+                            {
+                                var rebateAmount = _discountService.GetDiscountAmount(specialRebateDiscount, shoppingCartUnitPriceWithDiscountBase);
+                                cartItemModel.InstantSaving = rebateAmount > 0 ? _priceFormatter.FormatPrice(rebateAmount) : string.Empty;
+                            }
                         }
 
                         //picture

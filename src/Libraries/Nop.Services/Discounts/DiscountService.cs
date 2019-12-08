@@ -22,6 +22,8 @@ namespace Nop.Services.Discounts
     /// </summary>
     public partial class DiscountService : IDiscountService
     {
+        public const string SPECIAL_REBATE_DISCOUNT_PREFIX = "Rebate";
+
         #region Fields
 
         private readonly ICategoryService _categoryService;
@@ -542,6 +544,15 @@ namespace Nop.Services.Discounts
                 throw new ArgumentNullException(nameof(discounts));
 
             var result = new List<DiscountForCaching>();
+            // Exclude special rebate discount from calculating, and
+            // make sure it's returned as appliedDiscount because it's required to apply special discount logic 
+            var specialRebateDiscount = discounts.FirstOrDefault(o => o.Name.StartsWith(SPECIAL_REBATE_DISCOUNT_PREFIX));
+            if (specialRebateDiscount != null)
+            {
+                discounts.Remove(specialRebateDiscount);
+                result.Add(specialRebateDiscount);
+            }
+
             discountAmount = decimal.Zero;
             if (!discounts.Any())
                 return result;
@@ -556,6 +567,11 @@ namespace Nop.Services.Discounts
                 discountAmount = currentDiscountValue;
 
                 result.Clear();
+                // make sure specialRebateDiscount is returned as appliedDiscount because it's required to apply special discount logic 
+                if (specialRebateDiscount != null)
+                {
+                    result.Add(specialRebateDiscount);
+                }
                 result.Add(discount);
             }
             //now let's check cumulative discounts
@@ -572,6 +588,14 @@ namespace Nop.Services.Discounts
             discountAmount = cumulativeDiscountAmount;
 
             result.Clear();
+
+            // make sure specialRebateDiscount is returned as appliedDiscount because it's required to apply special discount logic 
+            if (specialRebateDiscount != null)
+            {
+                discounts.Remove(specialRebateDiscount);
+                result.Add(specialRebateDiscount);
+            }
+
             result.AddRange(cumulativeDiscounts);
 
             return result;

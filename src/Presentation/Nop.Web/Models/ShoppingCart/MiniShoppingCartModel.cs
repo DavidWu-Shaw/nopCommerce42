@@ -39,6 +39,8 @@ namespace Nop.Web.Models.ShoppingCart
 
             public string UnitPrice { get; set; }
 
+            public string InstantSaving { get; set; }
+
             public string AttributeInfo { get; set; }
 
             public PictureModel Picture { get; set; }
