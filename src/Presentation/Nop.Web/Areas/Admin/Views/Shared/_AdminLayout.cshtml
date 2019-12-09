@@ -96,21 +96,24 @@
 }
 <!DOCTYPE html>
 <html lang="@languageService.GetTwoLetterIsoLanguageName(workContext.WorkingLanguage)"@(supportRtl ? Html.Raw(" dir=\"rtl\"") : null)>
-    <head>
-        <title>@adminPageTitle</title>
-        <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-        @*Google Font*@
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
-        <script>
+<head>
+    <title>@adminPageTitle</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    @*Google Font*@
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <script>
             var rootAppPath = '@(Url.Content("~/"))';
-        </script>
-        @Html.NopHeadCustom()
-        @Html.NopCssFiles(ResourceLocation.Head, false)
-        @Html.NopScripts(ResourceLocation.Head, false)
-        @*Insert favicon and app icons head code*@
-        @await Component.InvokeAsync("Favicon")
-    </head>
+    </script>
+    <link type="text/css" rel="stylesheet" href="~/css/layout.css" />
+    <!-- DayPilot library -->
+    <script src="~/js/daypilot/daypilot-all.min.js"></script>
+    @Html.NopHeadCustom()
+    @Html.NopCssFiles(ResourceLocation.Head, false)
+    @Html.NopScripts(ResourceLocation.Head, false)
+    @*Insert favicon and app icons head code*@
+    @await Component.InvokeAsync("Favicon")
+</head>
     <body class="hold-transition skin-blue sidebar-mini">
         <div class="throbber">
             <div class="curtain">
