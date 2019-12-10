@@ -1,4 +1,5 @@
-﻿<div class="main">
+﻿@model ProductModel
+<div class="main">
     <div>
         <div class="column-left">
             <div id="nav"></div>
@@ -73,7 +74,7 @@
         var params = {
             id: args.e.id(),
         };
-        $.post("backend_delete.php", JSON.stringify(params), function (data) {
+        $.post("/appointment/delete", JSON.stringify(params), function (data) {
             scheduler.message("Deleted.");
         });
     };
@@ -89,7 +90,7 @@
             scale: scale
         };
 
-        $.post("backend_create.php", JSON.stringify(params), function (data) {
+        $.post("/appointment/create", JSON.stringify(params), function (data) {
             loadEvents();
             dp.message(data.message);
         });
@@ -113,10 +114,11 @@
 
         var params = {
             start: from.toString(),
-            end: to.toString()
+            end: to.toString(),
+            resource: @Model.Id
         };
 
-        $.post("/appointment/managerevents", JSON.stringify(params), function (data) {
+        $.post("/appointment/eventsbyresource", JSON.stringify(params), function (data) {
             scheduler.timeline = getTimeline(day);
             scheduler.events.list = data;
             scheduler.update();
@@ -128,11 +130,14 @@
     }
 
     function loadResources() {
-        $.post("/appointment/getresources", function (data) {
-            scheduler.resources = data;
-            scheduler.visible = true;
-            scheduler.update();
-        });
+        var data = {
+            id: @Model.Id.ToString(),
+            name: @Model.Name
+        };
+
+        scheduler.resources = JSON.stringify(data);
+        scheduler.visible = true;
+        scheduler.update();
     }
 
     function getTimeline(date) {

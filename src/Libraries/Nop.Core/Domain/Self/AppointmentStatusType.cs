@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Nop.Core.Domain.Self
 {
-    enum AppointmentStatusType
+    public enum AppointmentStatusType
     {
         free,
         waiting,
