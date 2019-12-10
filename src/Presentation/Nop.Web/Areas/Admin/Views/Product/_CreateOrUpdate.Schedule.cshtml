@@ -131,8 +131,8 @@
 
     function loadResources() {
         var data = {
-            id: @Model.Id.ToString(),
-            name: @Model.Name
+            id: "@Model.Id.ToString()",
+            name: "@Model.Name"
         };
 
         scheduler.resources = JSON.stringify(data);
