@@ -130,12 +130,12 @@
     }
 
     function loadResources() {
-        var data = {
-            id: "@Model.Id.ToString()",
-            name: "@Model.Name"
-        };
-
-        scheduler.resources = JSON.stringify(data);
+        var data = [{
+            id: "@Model.Id",
+            name: "@Model.Name",
+        }];
+        console.log(data);
+        scheduler.resources = data;
         scheduler.visible = true;
         scheduler.update();
     }
