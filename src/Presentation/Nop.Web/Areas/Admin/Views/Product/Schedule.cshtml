@@ -103,7 +103,7 @@
 
         $.ajax({
             url: "@Url.Action("Delete", "Appointment")",
-            type: "POST",
+            type: "post",
             data: params
         })
         .done(function (result) {
@@ -118,14 +118,14 @@
         var params = {
             start: args.start.toString(),
             end: args.end.toString(),
-            resource: args.resource,
+            resourceId: args.resource,
             scale: scale
         };
         addAntiForgeryToken(params);
 
         $.ajax({
             url: "@Url.Action("Create", "Appointment")",
-            type: "POST",
+            type: "post",
             data: params
         })
         .done(function (result) {
@@ -157,8 +157,8 @@
         addAntiForgeryToken(params);
 
         $.ajax({
-            url: "@Url.Action("EventsByResource", "Appointment")",
-            type: "POST",
+            url: "@Url.Action("List", "Appointment")",
+            type: "post",
             data: params,
             cache: false,
         })

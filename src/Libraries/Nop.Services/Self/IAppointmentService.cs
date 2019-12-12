@@ -9,6 +9,7 @@ namespace Nop.Services.Self
     {
         Appointment GetAppointmentById(int appointmentId);
         void InsertAppointment(Appointment appointment);
+        void UpdateAppointment(Appointment appointment);
         List<Appointment> GetAppointmentsByResource(DateTime startTimeUtc, DateTime endTimeUtc, int resourceId);
     }
 }

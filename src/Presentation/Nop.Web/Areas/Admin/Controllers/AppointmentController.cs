@@ -48,7 +48,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         #region Methods
 
         [HttpPost]
-        public virtual IActionResult EventsByResource(DateTime start, DateTime end, int resourceId)
+        public virtual IActionResult List(DateTime start, DateTime end, int resourceId)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProductReviews))
                 return AccessDeniedDataTablesJson();
@@ -66,11 +66,35 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public virtual IActionResult Edit(ProductReviewModel model, bool continueEditing)
+        public virtual IActionResult Create(DateTime start, DateTime end, int resourceId, string scale)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProductReviews))
                 return AccessDeniedView();
-            return View(model);
+
+            var timeSlots = GetSlots(start, end, scale);
+            foreach (var slot in timeSlots)
+            {
+                Appointment appointment = new Appointment
+                {
+                    StartTimeUtc = slot.Start.ToUniversalTime(),
+                    EndTimeUtc = slot.End.ToUniversalTime(),
+                    ResourcetId = resourceId,
+                    Label = string.Empty,
+                    StatusId = (int)AppointmentStatusType.free
+                };
+
+                _appointmentService.InsertAppointment(appointment);
+            }
+
+            return Json(new { status = true, responseText = $"{timeSlots.Count} records created." });
+        }
+
+        private List<TimeSlot> GetSlots(DateTime start, DateTime end, string scale)
+        {
+            var result = new List<TimeSlot>();
+
+
+            return result;
         }
 
         [HttpPost]
@@ -79,7 +103,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProductReviews))
                 return AccessDeniedView();
 
-            return RedirectToAction("List");
+            return Json(new { status = true, responseText = "Deleted." });
         }
 
         #endregion

@@ -20,4 +20,10 @@ namespace Nop.Web.Models.Self
         public string status { get; set; }
         public string doctor { get; set; }
     }
+
+    public class TimeSlot
+    {
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+    }
 }
