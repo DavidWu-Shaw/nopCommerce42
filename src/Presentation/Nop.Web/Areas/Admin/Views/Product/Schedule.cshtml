@@ -1,27 +1,46 @@
-﻿@model ProductModel
-<div class="main">
-    <div>
-        <div class="column-left">
-            <div id="nav"></div>
-        </div>
-        <div class="column-main">
-            <div class="toolbar">
-                <span class="toolbar-item">
-                    Scale:
-                    <label for='scale-15min'><input type="radio" value="15min" name="scale" id='scale-15min'>15-Min</label>
-                    <label for='scale-hours'>
-                        <input type="radio" value="hours" name="scale" id='scale-hours' checked="checked">Hours
-                    </label>
-                    <label for='scale-shifts'><input type="radio" value="shifts" name="scale" id='scale-shifts'>Shifts</label>
-                </span>
-                <span class="toolbar-item"><label for="business-only"><input type="checkbox" id="business-only">Hide non-business hours</label></span>
-                <span class="toolbar-item">Slots: <button id="clear">Clear</button> Deletes all free slots this month</span>
-            </div>
-            <div id="scheduler"></div>
-        </div>
+@model ProductModel
+@{
+    //page title
+    ViewBag.Title = T("Admin.Catalog.Products.CreateSchedule").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Products");
+}
+<div class="content-header clearfix">
+    <h1 class="pull-left">
+        @T("Admin.Catalog.Products.CreateSchedule") - @Model.Name
+        <small>
+            <i class="fa fa-arrow-circle-left"></i>
+            <a asp-action="List">@T("Admin.Catalog.Products.BackToList")</a>
+        </small>
+    </h1>
+    <div class="pull-right">
+        <button type="button" onclick="javascript:OpenWindow('@Url.RouteUrl("Product", new {SeName = Model.SeName})', 800, 600, true); return false;" class="btn bg-purple">
+            <i class="fa fa-eye"></i>
+            @T("Admin.Common.Preview")
+        </button>
     </div>
 </div>
-<script type="text/javascript">
+<div class="content">
+    <div class="column-left">
+        <div id="nav"></div>
+    </div>
+    <div class="column-main">
+        <div class="toolbar">
+            <span class="toolbar-item">
+                Scale:
+                <label for='scale-15min'><input type="radio" value="15min" name="scale" id='scale-15min'>15-Min</label>
+                <label for='scale-hours'>
+                    <input type="radio" value="hours" name="scale" id='scale-hours' checked="checked">Hours
+                </label>
+                <label for='scale-shifts'><input type="radio" value="shifts" name="scale" id='scale-shifts'>Shifts</label>
+            </span>
+            <span class="toolbar-item"><label for="business-only"><input type="checkbox" id="business-only">Hide non-business hours</label></span>
+            <span class="toolbar-item">Slots: <button id="clear">Clear</button> Deletes all free slots this month</span>
+        </div>
+        <div id="scheduler"></div>
+    </div>
+</div>
+    <script type="text/javascript">
     var nav = new DayPilot.Navigator("nav");
     nav.selectMode = "month";
     nav.showMonths = 2;
@@ -248,5 +267,5 @@
         });
     });
 
-</script>
+    </script>
 

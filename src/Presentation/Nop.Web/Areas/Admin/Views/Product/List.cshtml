@@ -202,13 +202,13 @@
                 <div class="panel panel-default">
                     <div class="panel-body">
                         @await Html.PartialAsync("Table", new DataTablesModel
-                        {
-                            Name = "products-grid",
-                            UrlRead = new DataUrl("ProductList", "Product", null),
-                            SearchButtonId = "search-products",
-                            Length = Model.PageSize,
-                            LengthMenu = Model.AvailablePageSizes,
-                            Filters = new List<FilterParameter>
+                   {
+                       Name = "products-grid",
+                       UrlRead = new DataUrl("ProductList", "Product", null),
+                       SearchButtonId = "search-products",
+                       Length = Model.PageSize,
+                       LengthMenu = Model.AvailablePageSizes,
+                       Filters = new List<FilterParameter>
                             {
                                 new FilterParameter(nameof(Model.SearchProductName)),
                                 new FilterParameter(nameof(Model.SearchCategoryId)),
@@ -220,7 +220,7 @@
                                 new FilterParameter(nameof(Model.SearchProductTypeId)),
                                 new FilterParameter(nameof(Model.SearchPublishedId))
                             },
-                            ColumnCollection = new List<ColumnProperty>
+                       ColumnCollection = new List<ColumnProperty>
                             {
                                 new ColumnProperty(nameof(ProductModel.Id))
                                 {
@@ -274,9 +274,16 @@
                                     Width = "100",
                                     ClassName =  NopColumnClassDefaults.Button,
                                     Render = new RenderButtonEdit(new DataUrl("Edit"))
+                                },
+                                new ColumnProperty(nameof(ProductModel.Id))
+                                {
+                                    Title = T("Admin.Common.Schedule").Text,
+                                    Width = "100",
+                                    ClassName =  NopColumnClassDefaults.Button,
+                                    Render = new RenderButtonEdit(new DataUrl("Schedule"))
                                 }
                             }
-                        })
+                   })
 
                         <script>
                             function renderColumnPrice(data, type, row, meta) {

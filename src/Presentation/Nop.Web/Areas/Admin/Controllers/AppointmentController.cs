@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Self;
 using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Services.Security;
@@ -47,12 +48,12 @@ namespace Nop.Web.Areas.Admin.Controllers
         #region Methods
 
         [HttpPost]
-        public virtual IActionResult EventsByResource(DateTime start, DateTime end, int resource)
+        public virtual IActionResult EventsByResource(DateTime start, DateTime end, int resourceId)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProductReviews))
                 return AccessDeniedDataTablesJson();
 
-            var events = _appointmentService.GetAppointmentsByResource(start, end, resource);
+            var events = new List<Appointment>();//_appointmentService.GetAppointmentsByResource(start, end, resource);
 
             var model = new List<AppointmentModel>();
             foreach (var appointment in events)
