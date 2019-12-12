@@ -99,7 +99,14 @@
         var params = {
             id: args.e.id(),
         };
-        $.post("/appointment/delete", JSON.stringify(params), function (data) {
+        addAntiForgeryToken(params);
+
+        $.ajax({
+            url: "@Url.Action("Delete", "Appointment")",
+            type: "POST",
+            data: params
+        })
+        .done(function (result) {
             scheduler.message("Deleted.");
         });
     };
@@ -114,14 +121,19 @@
             resource: args.resource,
             scale: scale
         };
+        addAntiForgeryToken(params);
 
-        $.post("/appointment/create", JSON.stringify(params), function (data) {
+        $.ajax({
+            url: "@Url.Action("Create", "Appointment")",
+            type: "POST",
+            data: params
+        })
+        .done(function (result) {
             loadEvents();
-            dp.message(data.message);
+            dp.message(result.message);
         });
 
         dp.clearSelection();
-
     };
 
     scheduler.init();
@@ -144,12 +156,11 @@
         };
         addAntiForgeryToken(params);
 
-        console.log(params);
         $.ajax({
-            type: "POST",
             url: "@Url.Action("EventsByResource", "Appointment")",
+            type: "POST",
+            data: params,
             cache: false,
-            data: params
         })
         .done(function (result) {
             console.log(result);
