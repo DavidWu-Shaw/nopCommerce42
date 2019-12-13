@@ -8,13 +8,17 @@ using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Services.Security;
 using Nop.Services.Self;
-using Nop.Web.Areas.Admin.Models.Catalog;
 using Nop.Web.Models.Self;
 
 namespace Nop.Web.Areas.Admin.Controllers
 {
     public partial class AppointmentController : BaseAdminController
     {
+        public const int MORNING_SHIFT_STARTS = 9;
+        public const int MORNING_SHIFT_ENDS = 13;
+        public const int AFTERNOON_SHIFT_STARTS = 14;
+        public const int AFTERNOON_SHIFT_ENDS = 18;
+
         #region Fields
 
         private readonly CatalogSettings _catalogSettings;
@@ -91,8 +95,39 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         private List<TimeSlot> GetSlots(DateTime start, DateTime end, string scale)
         {
-            var result = new List<TimeSlot>();
+            if (scale == "shifts")
+            {
+                return GetSlotsByShift(start, end);
+            }
+            else
+            {
+                return GetSlotsByHour(start, end);
+            }
+        }
 
+        private List<TimeSlot> GetSlotsByHour(DateTime start, DateTime end)
+        {
+            var result = new List<TimeSlot>();
+            double days = (end - start).TotalDays;
+            for (int i = 0; i < days; i++)
+            {
+                DateTime day = start.AddDays(i);
+                for (int x = MORNING_SHIFT_STARTS; x < MORNING_SHIFT_ENDS; x++)
+                {
+                    result.Add(new TimeSlot { Start = day.AddHours(x), End = day.AddHours(x + 1) });
+                }
+                for (int x = AFTERNOON_SHIFT_STARTS; x < AFTERNOON_SHIFT_ENDS; x++)
+                {
+                    result.Add(new TimeSlot { Start = day.AddHours(x), End = day.AddHours(x + 1) });
+                }
+            }
+
+            return result;
+        }
+
+        private List<TimeSlot> GetSlotsByShift(DateTime start, DateTime end)
+        {
+            var result = new List<TimeSlot>();
 
             return result;
         }
