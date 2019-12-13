@@ -64,7 +64,7 @@ namespace Nop.Services.Self
         public virtual List<Appointment> GetAppointmentsByResource(DateTime startTimeUtc, DateTime endTimeUtc, int resourceId)
         {
             var query = _appointmentRepository.Table
-                .Where(x => x.ResourcetId == resourceId)
+                .Where(x => x.ResourceId == resourceId)
                 .Where(x => x.StartTimeUtc >= startTimeUtc && x.StartTimeUtc < endTimeUtc);
 
             return query.ToList();

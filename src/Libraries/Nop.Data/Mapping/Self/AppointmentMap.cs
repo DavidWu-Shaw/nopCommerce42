@@ -19,7 +19,7 @@ namespace Nop.Data.Mapping.Self
 
             builder.HasOne(productAppointment => productAppointment.Product)
                 .WithMany()
-                .HasForeignKey(productAppointment => productAppointment.ResourcetId)
+                .HasForeignKey(productAppointment => productAppointment.ResourceId)
                 .IsRequired();
 
             builder.HasOne(productAppointment => productAppointment.Customer)

@@ -12,7 +12,7 @@ namespace Nop.Web.Models.Self
                 text = appointment.Label,
                 start = appointment.StartTimeUtc.ToString(),
                 end = appointment.EndTimeUtc.ToString(),
-                resource = appointment.ResourcetId.ToString()
+                resource = appointment.ResourceId.ToString()
             };
 
             model.tags = new TagModel

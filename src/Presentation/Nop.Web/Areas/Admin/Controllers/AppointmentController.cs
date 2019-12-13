@@ -57,7 +57,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageProductReviews))
                 return AccessDeniedDataTablesJson();
 
-            var events = new List<Appointment>();//_appointmentService.GetAppointmentsByResource(start, end, resource);
+            var events = _appointmentService.GetAppointmentsByResource(start, end, resourceId);
 
             var model = new List<AppointmentModel>();
             foreach (var appointment in events)
@@ -82,7 +82,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 {
                     StartTimeUtc = slot.Start.ToUniversalTime(),
                     EndTimeUtc = slot.End.ToUniversalTime(),
-                    ResourcetId = resourceId,
+                    ResourceId = resourceId,
                     Label = string.Empty,
                     StatusId = (int)AppointmentStatusType.free
                 };
