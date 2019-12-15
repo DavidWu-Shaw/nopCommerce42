@@ -8,6 +8,7 @@ using Nop.Services.Localization;
 using Nop.Services.Messages;
 using Nop.Services.Security;
 using Nop.Services.Self;
+using Nop.Web.Areas.Admin.Helpers;
 using Nop.Web.Models.Self;
 
 namespace Nop.Web.Areas.Admin.Controllers
@@ -101,29 +102,11 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
             else
             {
-                return GetSlotsByHour(start, end);
+                var helper = new AppointmentTimeSlotHelper(MORNING_SHIFT_STARTS, MORNING_SHIFT_ENDS, AFTERNOON_SHIFT_STARTS, AFTERNOON_SHIFT_ENDS);
+                return helper.GetSlotsByHour(start, end);
             }
         }
 
-        private List<TimeSlot> GetSlotsByHour(DateTime start, DateTime end)
-        {
-            var result = new List<TimeSlot>();
-            double days = (end - start).TotalDays;
-            for (int i = 0; i < days; i++)
-            {
-                DateTime day = start.AddDays(i);
-                for (int x = MORNING_SHIFT_STARTS; x < MORNING_SHIFT_ENDS; x++)
-                {
-                    result.Add(new TimeSlot { Start = day.AddHours(x), End = day.AddHours(x + 1) });
-                }
-                for (int x = AFTERNOON_SHIFT_STARTS; x < AFTERNOON_SHIFT_ENDS; x++)
-                {
-                    result.Add(new TimeSlot { Start = day.AddHours(x), End = day.AddHours(x + 1) });
-                }
-            }
-
-            return result;
-        }
 
         private List<TimeSlot> GetSlotsByShift(DateTime start, DateTime end)
         {
