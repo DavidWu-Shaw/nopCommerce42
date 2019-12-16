@@ -14,7 +14,7 @@ namespace Nop.Web.MVC.Tests.Admin.Helpers
         public void Should_Create_8_Slots_For_1_Day_With_8_Hours_Shift()
         {
             AppointmentTimeSlotHelper helper = new AppointmentTimeSlotHelper(9, 13, 14, 18);
-            DateTime start = DateTime.Now.AddDays(1);
+            DateTime start = new DateTime(2050, 12, 21, 10, 0, 0);
             List<TimeSlot> timeSlots = helper.GetSlotsByHour(start, start.AddHours(2));
 
             Assert.AreEqual(8, timeSlots.Count);

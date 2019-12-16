@@ -10,11 +10,10 @@ namespace Nop.Web.Models.Self
             {
                 id = appointment.Id.ToString(),
                 text = appointment.Label,
-                start = appointment.StartTimeUtc.ToString(),
-                end = appointment.EndTimeUtc.ToString(),
+                start = appointment.StartTimeUtc.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
+                end = appointment.EndTimeUtc.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
                 resource = appointment.ResourceId.ToString()
             };
-
             model.tags = new TagModel
             {
                 status = ((AppointmentStatusType)appointment.StatusId).ToString(),
