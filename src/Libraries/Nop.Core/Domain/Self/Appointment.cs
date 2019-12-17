@@ -9,7 +9,7 @@ namespace Nop.Core.Domain.Self
         public DateTime StartTimeUtc { get; set; }
         public DateTime EndTimeUtc { get; set; }
         public string Label { get; set; }
-        public int StatusId { get; set; }
+        public short StatusId { get; set; }
         public int ResourceId { get; set; }
         public int CustomerId { get; set; }
         public virtual Product Product { get; set; }

@@ -1,5 +1,0 @@
-﻿{
-  "DataProvider": "sqlserver",
-  "DataConnectionString": "Data Source=DAWU10DM12BL\\ex2017;Initial Catalog=nop;Integrated Security=True;Persist Security Info=False;User ID=sa;Password=Dev@123",
-  "RawDataSettings": {}
-}
