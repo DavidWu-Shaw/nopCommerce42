@@ -69,5 +69,15 @@ namespace Nop.Services.Self
 
             return query.ToList();
         }
+
+        public virtual List<Appointment> GetAvailableAppointmentsByCustomer(DateTime startTimeUtc, DateTime endTimeUtc, int resourceId, int customerId)
+        {
+            var query = _appointmentRepository.Table
+                .Where(x => x.ResourceId == resourceId)
+                .Where(x => x.CustomerId == 0 || x.CustomerId == customerId)
+                .Where(x => x.StartTimeUtc >= startTimeUtc && x.StartTimeUtc < endTimeUtc);
+
+            return query.ToList();
+        }
     }
 }

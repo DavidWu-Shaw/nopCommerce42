@@ -11,5 +11,6 @@ namespace Nop.Services.Self
         void InsertAppointment(Appointment appointment);
         void UpdateAppointment(Appointment appointment);
         List<Appointment> GetAppointmentsByResource(DateTime startTimeUtc, DateTime endTimeUtc, int resourceId);
+        List<Appointment> GetAvailableAppointmentsByCustomer(DateTime startTimeUtc, DateTime endTimeUtc, int resourceId, int customerId);
     }
 }

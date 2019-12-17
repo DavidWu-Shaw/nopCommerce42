@@ -9,7 +9,6 @@ namespace Nop.Web.Models.Self
             var model = new AppointmentModel
             {
                 id = appointment.Id.ToString(),
-                text = appointment.Label,
                 start = appointment.StartTimeUtc.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
                 end = appointment.EndTimeUtc.ToLocalTime().ToString("yyyy-MM-ddTHH:mm:ss"),
                 resource = appointment.ResourceId.ToString()
@@ -18,6 +17,10 @@ namespace Nop.Web.Models.Self
             {
                 status = ((AppointmentStatusType)appointment.StatusId).ToString(),
                 doctor = appointment.Product.Name
+            };
+            if (appointment.Customer != null)
+            {
+                model.text = appointment.Customer.Username;
             };
 
             return model;
