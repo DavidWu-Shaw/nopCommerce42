@@ -5,27 +5,26 @@ namespace Nop.Web.Areas.Admin.Helpers
 {
     public static class RecurringPaymentHelper
     {
-        public static DateTime GetNexDate(DateTime startDate, RecurringProductCyclePeriod cyclePeriod)
+        public static DateTime GetNexPaymentDate(DateTime startDate, DateTime currentDate, RecurringProductCyclePeriod cyclePeriod)
         {
-            DateTime today = DateTime.Today;
-            DateTime nextDate = today.AddDays(1);
+            DateTime nextDate = currentDate.AddDays(1);
             switch (cyclePeriod)
             {
                 case RecurringProductCyclePeriod.Months:
-                    var months = 12 * (today.Year - startDate.Year) + today.Month - startDate.Month;
-                    if (today.Date >= startDate.Date)
+                    var months = 12 * (currentDate.Year - startDate.Year) + currentDate.Month - startDate.Month;
+                    if (currentDate.Day >= startDate.Day)
                     {
                         months++;
                     }
                     nextDate = startDate.AddMonths(months);
                     break;
                 case RecurringProductCyclePeriod.Years:
-                    var years = (today - startDate).TotalDays / 365.25;
-                    nextDate = startDate.AddYears((int)Math.Ceiling(years));
+                    int years = (int)Math.Floor((currentDate - startDate).TotalDays / 365.25 + 1);
+                    nextDate = startDate.AddYears(years);
                     break;
                 case RecurringProductCyclePeriod.Weeks:
-                    var days = (today - startDate).TotalDays;
-                    nextDate = startDate.AddDays(days);
+                    int weeks = (int)Math.Floor((currentDate - startDate).TotalDays / 7 + 1);
+                    nextDate = startDate.AddDays(weeks * 7);
                     break;
             }
 
